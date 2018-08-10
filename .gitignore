@@ -1,0 +1,13 @@
+.DS_Store
+backend.tf
+backend.tf.local
+shared.tf.local
+forseti/forseti.json
+forseti/forseti-security/*
+.terraform/*
+forseti/helpers/.terraform
+.terraform
+terraform.out
+*.pyc
+*.profraw
+*tfstate*

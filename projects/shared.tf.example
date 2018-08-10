@@ -1,0 +1,104 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+provider "google" {
+  version = "~> 2.1"
+  region  = "${var.region}"
+}
+
+provider "google-beta" {
+  version = "~> 2.1"
+  region  = "${var.region}"
+}
+
+variable "billing_account" {
+  description = "The ID of the associated billing account"
+  default     = ""
+}
+
+variable "org_id" {
+  description = "The ID of the Google Cloud Organization."
+  default = ""
+}
+
+variable "domain" {
+  description = "The domain name of the Google Cloud Organization. Use this if you can't add Organization Viewer permissions to your TF ServiceAccount"
+  default = ""
+}
+
+variable "folder_id" {
+  description = "The ID of the folder in which projects should be created (optional)."
+  default     = ""
+}
+
+variable "project_prefix" {
+  description = "Segment to prefix all project names with."
+  default     = "pci-poc"
+}
+
+variable "region" {
+  default = "us-central1"
+}
+
+variable "mgmt_subnet_name" {
+  default = "management"
+}
+
+variable "mgmt_subnet_cidr" {
+  default = "10.10.1.0/24"
+}
+
+variable "in_scope_subnet_name" {
+  default = "in-scope"
+}
+
+variable "in_scope_subnet_cidr" {
+  default = "10.10.10.0/24"
+}
+
+
+variable "out_of_scope_subnet_name" {
+  default = "out-of-scope"
+}
+
+variable "out_of_scope_subnet_cidr" {
+  default = "10.10.20.0/24"
+}
+
+variable "shared_vpc_name" {
+  default     = "shared-vpc"
+  description = "The name of the Shared VPC network"
+}
+
+locals {
+  folder_id            = "${ var.folder_id != "" ? var.folder_id : "" }"
+  remote_state_bucket  = "BUCKET_PREFIX-terraform-admin"
+  project_network      = "${var.project_prefix}-network"
+  project_management   = "${var.project_prefix}-management"
+  project_in_scope     = "${var.project_prefix}-in-scope"
+  project_out_of_scope = "${var.project_prefix}-out-of-scope"
+}
+
+###
+# Components
+###
+locals {
+  out_of_scope_cluster_name                        = "out-of-scope"
+  out_of_scope_pod_ip_range_name                   = "out-of-scope-pod-cidr"
+  out_of_scope_services_ip_range_name              = "out-of-scope-services-cidr"
+
+  in_scope_cluster_name                            = "in-scope"
+  in_scope_pod_ip_range_name                       = "in-scope-pod-cidr"
+  in_scope_services_ip_range_name                  = "in-scope-services-cidr"
+}
