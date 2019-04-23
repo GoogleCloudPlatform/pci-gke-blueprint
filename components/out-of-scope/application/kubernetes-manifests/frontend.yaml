@@ -81,20 +81,3 @@ spec:
     app: frontend
   ports:
   - port: 8080
-
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: frontend-external-tls
-  annotations:
-    kubernetes.io/ingress.global-static-ip-name: frontend-ext-ip
-spec:
-  tls:
-  - secretName: tls-hipsterservice
-  rules:
-  - http:
-      paths:
-      - backend:
-          serviceName: frontend
-          servicePort: 8080

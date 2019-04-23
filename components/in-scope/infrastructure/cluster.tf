@@ -34,6 +34,8 @@ data "terraform_remote_state" "project_network" {
 resource "google_container_cluster" "primary" {
   name = "${local.in_scope_cluster_name}"
 
+  min_master_version = "${local.gke_minimum_version}"
+
   location       = "us-central1-a"
   node_locations = ["us-central1-b"]
 
@@ -42,6 +44,10 @@ resource "google_container_cluster" "primary" {
   subnetwork = "https://www.googleapis.com/compute/v1/projects/${data.terraform_remote_state.project_network.project_id}/regions/${var.region}/subnetworks/${var.in_scope_subnet_name}"
 
   project = "${data.terraform_remote_state.project_in_scope.project_id}"
+
+  # We use a custom fluentd DaemonSet to manage logging. We do this so we can
+  # configure filter rules to mask sensitive data.
+  logging_service = "none"
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
@@ -95,8 +101,10 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name               = "${local.in_scope_cluster_name}-node-pool"
+  version            = "${local.gke_minimum_version}"
   location           = "us-central1-a"
   initial_node_count = 2
+
 
   autoscaling {
     min_node_count = 1
@@ -125,6 +133,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
       "https://www.googleapis.com/auth/monitoring",
       "https://www.googleapis.com/auth/trace.append",
       "https://www.googleapis.com/auth/cloud_debugger",
+      "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
 }

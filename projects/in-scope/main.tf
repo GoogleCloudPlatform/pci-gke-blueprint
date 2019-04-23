@@ -44,6 +44,7 @@ module "project_in_scope" {
     "containerregistry.googleapis.com",
     "cloudtrace.googleapis.com",
     "logging.googleapis.com",
+    "dlp.googleapis.com"
   ]
 }
 
@@ -79,6 +80,24 @@ resource "google_project_iam_binding" "add_monitoring_metricwriter_role" {
 resource "google_project_iam_binding" "add_storage_objectviewer_role" {
   project = "${module.project_in_scope.project_id}"
   role    = "roles/storage.objectViewer"
+  members = ["serviceAccount:${module.project_in_scope.service_account_email}"]
+}
+
+resource "google_project_iam_binding" "add_dlp_user_role" {
+  project = "${module.project_in_scope.project_id}"
+  role    = "roles/dlp.user"
+  members = ["serviceAccount:${module.project_in_scope.service_account_email}"]
+}
+
+resource "google_project_iam_binding" "add_dlp_deidentifyTemplatesReader_role" {
+  project = "${module.project_in_scope.project_id}"
+  role    = "roles/dlp.deidentifyTemplatesReader"
+  members = ["serviceAccount:${module.project_in_scope.service_account_email}"]
+}
+
+resource "google_project_iam_binding" "add_cloudprofiler_agent_role" {
+  project = "${module.project_in_scope.project_id}"
+  role    = "roles/cloudprofiler.agent"
   members = ["serviceAccount:${module.project_in_scope.service_account_email}"]
 }
 
