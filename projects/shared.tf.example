@@ -88,6 +88,7 @@ locals {
   project_management   = "${var.project_prefix}-management"
   project_in_scope     = "${var.project_prefix}-in-scope"
   project_out_of_scope = "${var.project_prefix}-out-of-scope"
+  gke_minimum_version  = "1.12.6-gke.10"
 }
 
 ###

@@ -35,6 +35,8 @@ data "terraform_remote_state" "project_network" {
 resource "google_container_cluster" "primary" {
   name = "${local.out_of_scope_cluster_name}"
 
+  min_master_version = "${local.gke_minimum_version}"
+
   location       = "us-central1-a"
   node_locations = ["us-central1-b"]
 
@@ -74,6 +76,7 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name               = "${local.out_of_scope_cluster_name}-node-pool"
+  version            = "${local.gke_minimum_version}"
   location           = "us-central1-a"
   initial_node_count = 2
 
