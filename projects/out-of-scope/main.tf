@@ -34,7 +34,7 @@ module "project_out_of_scope" {
   folder_id       = "${local.folder_id}"
 
   shared_vpc         = "${data.terraform_remote_state.project_network.project_id}"
-  shared_vpc_subnets = ["projects/${local.project_network}/regions/${var.region}/subnetworks/${var.out_of_scope_subnet_name}"]
+  shared_vpc_subnets = ["projects/${local.project_network}/regions/${var.region}/subnetworks/${local.out_of_scope_subnet_name}"]
 
   activate_apis = [
     "compute.googleapis.com",

@@ -43,20 +43,20 @@ module "vpc_pci" {
 
   subnets = [
     {
-      subnet_name   = "${var.mgmt_subnet_name}"
-      subnet_ip     = "${var.mgmt_subnet_cidr}"
+      subnet_name   = "${local.mgmt_subnet_name}"
+      subnet_ip     = "${local.mgmt_subnet_cidr}"
       subnet_region = "${var.region}"
     },
     {
-      subnet_name           = "${var.in_scope_subnet_name}"
-      subnet_ip             = "${var.in_scope_subnet_cidr}"
+      subnet_name           = "${local.in_scope_subnet_name}"
+      subnet_ip             = "${local.in_scope_subnet_cidr}"
       subnet_region         = "${var.region}"
       subnet_private_access = "true"
       subnet_flow_logs      = "true"
     },
     {
-      subnet_name   = "${var.out_of_scope_subnet_name}"
-      subnet_ip     = "${var.out_of_scope_subnet_cidr}"
+      subnet_name   = "${local.out_of_scope_subnet_name}"
+      subnet_ip     = "${local.out_of_scope_subnet_cidr}"
       subnet_region = "${var.region}"
     },
   ]
@@ -129,7 +129,7 @@ resource "google_compute_router_nat" "nat" {
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
   subnetwork {
-    name                    = "https://www.googleapis.com/compute/v1/projects/${module.project_network.project_id}/regions/${var.region}/subnetworks/${var.in_scope_subnet_name}"
+    name                    = "https://www.googleapis.com/compute/v1/projects/${module.project_network.project_id}/regions/${var.region}/subnetworks/${local.in_scope_subnet_name}"
     source_ip_ranges_to_nat = ["PRIMARY_IP_RANGE"]
   }
 }

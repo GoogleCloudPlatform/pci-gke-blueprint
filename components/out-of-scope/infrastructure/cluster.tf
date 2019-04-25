@@ -42,7 +42,7 @@ resource "google_container_cluster" "primary" {
 
   network = "${data.terraform_remote_state.project_network.vpc_self_link}"
 
-  subnetwork = "https://www.googleapis.com/compute/v1/projects/${data.terraform_remote_state.project_network.project_id}/regions/${var.region}/subnetworks/${var.out_of_scope_subnet_name}"
+  subnetwork = "https://www.googleapis.com/compute/v1/projects/${data.terraform_remote_state.project_network.project_id}/regions/${var.region}/subnetworks/${local.out_of_scope_subnet_name}"
 
   project = "${data.terraform_remote_state.project_out_of_scope.project_id}"
 

@@ -202,11 +202,15 @@ There are several GCP projects that need to be created:
 
 Each of these projects is in a separate folder under `projects/`.
 
-First, copy the `projects/shared.tf.example` file to a new file at
-`projects/shared.tf.local`. Replace the `remote_state_bucket` local to the value of
-`${TF_ADMIN_BUCKET}`. Replace any values as necessary.
-
-For each of the project folders, create a new `backend.tf` by copying the
+1. Copy the `projects/shared.tf.example` file to a new file at
+`projects/shared.tf.local`.
+1. In `projects/shared.tf.local`, replace the `remote_state_bucket` local to the value of
+`${TF_ADMIN_BUCKET}`. Note: Since the variables `folder_id`, `billing_account`, and `org_id`
+were set earlier as environment variables for terraform's use
+(`TF_VAR_folder_id, TF_VAR_billing_account, and TF_VAR_org_id`),
+and environment variables override the file's content, they can be left with
+their default settings.
+1. For each of the project folders, create a new `backend.tf` by copying the
 `backend.tf.example` file and replacing the `bucket` value  with the value of
 `${TF_ADMIN_BUCKET}`.
 

@@ -34,7 +34,7 @@ module "project_in_scope" {
   folder_id       = "${local.folder_id}"
 
   shared_vpc                  = "${data.terraform_remote_state.project_network.project_id}"
-  shared_vpc_subnets          = ["projects/${local.project_network}/regions/${var.region}/subnetworks/${var.in_scope_subnet_name}"]
+  shared_vpc_subnets          = ["projects/${local.project_network}/regions/${var.region}/subnetworks/${local.in_scope_subnet_name}"]
   disable_services_on_destroy = false
 
   activate_apis = [

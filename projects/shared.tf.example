@@ -51,55 +51,33 @@ variable "region" {
   default = "us-central1"
 }
 
-variable "mgmt_subnet_name" {
-  default = "management"
-}
-
-variable "mgmt_subnet_cidr" {
-  default = "10.10.1.0/24"
-}
-
-variable "in_scope_subnet_name" {
-  default = "in-scope"
-}
-
-variable "in_scope_subnet_cidr" {
-  default = "10.10.10.0/24"
-}
-
-
-variable "out_of_scope_subnet_name" {
-  default = "out-of-scope"
-}
-
-variable "out_of_scope_subnet_cidr" {
-  default = "10.10.20.0/24"
-}
-
 variable "shared_vpc_name" {
   default     = "shared-vpc"
   description = "The name of the Shared VPC network"
 }
 
 locals {
-  folder_id            = "${ var.folder_id != "" ? var.folder_id : "" }"
-  remote_state_bucket  = "BUCKET_PREFIX-terraform-admin"
-  project_network      = "${var.project_prefix}-network"
-  project_management   = "${var.project_prefix}-management"
-  project_in_scope     = "${var.project_prefix}-in-scope"
-  project_out_of_scope = "${var.project_prefix}-out-of-scope"
-  gke_minimum_version  = "1.12.6-gke.10"
-}
-
-###
-# Components
-###
-locals {
-  out_of_scope_cluster_name                        = "out-of-scope"
-  out_of_scope_pod_ip_range_name                   = "out-of-scope-pod-cidr"
-  out_of_scope_services_ip_range_name              = "out-of-scope-services-cidr"
+  folder_id                                        = "${ var.folder_id != "" ? var.folder_id : "" }"
+  remote_state_bucket                              = "BUCKET_PREFIX-terraform-admin"
+  gke_minimum_version                              = "1.12.6-gke.10"
 
   in_scope_cluster_name                            = "in-scope"
   in_scope_pod_ip_range_name                       = "in-scope-pod-cidr"
   in_scope_services_ip_range_name                  = "in-scope-services-cidr"
+  in_scope_subnet_name                             = "in-scope"
+  in_scope_subnet_cidr                             = "10.10.10.0/24"
+
+  mgmt_subnet_name                                 = "management"
+  mgmt_subnet_cidr                                 = "10.10.1.0/24"
+
+  out_of_scope_cluster_name                        = "out-of-scope"
+  out_of_scope_pod_ip_range_name                   = "out-of-scope-pod-cidr"
+  out_of_scope_services_ip_range_name              = "out-of-scope-services-cidr"
+  out_of_scope_subnet_name                         = "out-of-scope"
+  out_of_scope_subnet_cidr                         = "10.10.20.0/24"
+
+  project_network                                  = "${var.project_prefix}-network"
+  project_management                               = "${var.project_prefix}-management"
+  project_in_scope                                 = "${var.project_prefix}-in-scope"
+  project_out_of_scope                             = "${var.project_prefix}-out-of-scope"
 }
