@@ -241,6 +241,39 @@ section of Google Cloud Console. There should be one cluster called `in-scope`
 in your "In Scope" project and one cluster called `out-of-scope` for the Out of
 Scope project.
 
+
+#### Retrieve cluster credentials, and configure custom contexts
+
+Each cluster's credentials need to be retrieved. Additionally, the rest of these
+docs rely on [custom contexts](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/) being configured, since is simplifies working with
+multiple clusters simultaneously.
+
+[gcloud container clusters get-credentials](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubect) to set up `kubectl`'s configuration for the `in-scope` cluster
+and activate its context:
+
+Use `gcloud container clusters get-credentials in-scope --zone <ZONE> --project <IN-SCOPE-PROJECT-NAME>`
+
+Rename the current context to the more user-friendly `in-scope`:
+
+```
+kubectl config rename-context $(kubectl config current-context) in-scope
+kubectl config use-context in-scope
+```
+
+Repeat the same for the `out-of-scope` cluster:
+
+```
+gcloud container clusters get-credentials out-of-scope --zone <ZONE> --project <OUT-OF-SCOPE-PROJECT-NAME>
+kubectl config rename-context $(kubectl config current-context) out-of-scope
+kubectl config use-context out-of-scope
+```
+
+You can now target a specific cluster with `kubectl` by applying `--context` to
+the command. For example, `kubectl --context in-scope cluster-info` will return
+cluster info on the `in-scope` cluster even if the current context is something
+else.
+
+
 ### Deploy the custom DLP API filtering fluentd daemonset
 
 * This project includes a demonstration of the Data Loss API to filter logs from
@@ -346,7 +379,7 @@ project.
 
 ### Install Forseti (optional)
 
-1. change directories to `components/forseti`
+1. Change directories to `components/forseti`
 2. Create a new `backend.tf` by copying `backend.tf.example` and replacing the
 bucket value with your Terraform state bucket name
 3. Run `terraform init`
@@ -357,35 +390,6 @@ should also be a CloudSQL instance.
 6. To start feeding Forseti data into your organization's Cloud SCC follow the
 [instructions here](https://cloud.google.com/security-command-center/docs/how-to-output-forseti)
 
-
-### Get the cluster credentials, set up custom contexts
-
-This will create custom context alias to help finish setting up the Clusters and deploy the application.
-
-You will need `gcloud` and `kubectl` installed and configured for this to work.
-
-First, use `gcloud` to set up kubectl configuration for the `in-scope` cluster and activate the context:
-
-`gcloud container clusters get-credentials in-scope --zone <ZONE> --project <IN-SCOPE-PROJECT-NAME>`
-
-Create an alias context called `in-scope`:
-
-    kubectl config set-context in-scope \
-      --cluster "$(kubectl config get-contexts | grep '*' | awk -F ' ' '{print $3}')" \
-      --user "$(kubectl config get-contexts | grep '*' | awk -F ' ' '{print $4}')"
-
-Now, repeat for `out-of-scope` cluster:
-
-`gcloud container clusters get-credentials out-of-scope --zone <ZONE> --project <OUT-OF-SCOPE-PROJECT-NAME>`
-
-    kubectl config set-context out-of-scope \
-      --cluster "$(kubectl config get-contexts | grep '*' | awk -F ' ' '{print $3}')" \
-      --user "$(kubectl config get-contexts | grep '*' | awk -F ' ' '{print $4}')"
-
-You can now target a specific cluster with `kubectl` by applying `--context` to
-the command. For example, `kubectl --context in-scope cluster-info` will return
-cluster info on the `in-scope` cluster even if the current context is something
-else.
 
 ### Creating certificates and keys and Specifying certificates for use with your Ingress
 
