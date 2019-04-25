@@ -44,7 +44,7 @@ module "forseti-install" {
   domain             = "${var.domain}"
   network            = "${data.terraform_remote_state.network.network_name}"
   network_project    = "${data.terraform_remote_state.network.project_id}"
-  subnetwork         = "${var.mgmt_subnet_name}"
+  subnetwork         = "${local.mgmt_subnet_name}"
 
   # Bug in the forseti module variable interpolation. The value must be
   # hardcoded, otherwise the error
