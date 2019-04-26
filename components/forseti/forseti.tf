@@ -46,6 +46,9 @@ module "forseti-install" {
   network_project    = "${data.terraform_remote_state.network.project_id}"
   subnetwork         = "${local.mgmt_subnet_name}"
 
+  cscc_source_id          = "${local.forseti_cscc_source_id}"
+  cscc_violations_enabled = "${local.forseti_cscc_violations_enabled}"
+
   # Bug in the forseti module variable interpolation. The value must be
   # hardcoded, otherwise the error
   # `Error: # module.forseti-install.module.server.google_compute_firewall.forseti-server-allow-grpc: source_ranges: should be a list`
