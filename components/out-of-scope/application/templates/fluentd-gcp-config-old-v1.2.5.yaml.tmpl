@@ -49,9 +49,6 @@ data:
     <source>
       @type tail
       path /var/log/containers/*.log
-      # Begin DLP customization section
-      exclude_path ["/var/log/containers/paymentservice*.log"]
-      # End DLP customization section
       pos_file /var/log/gcp-containers.log.pos
       # Tags at this point are in the format of:
       # reform.var.log.containers.<POD_NAME>_<NAMESPACE_NAME>_<CONTAINER_NAME>-<CONTAINER_ID>.log
@@ -98,43 +95,6 @@ data:
       max_bytes 500000
       max_lines 1000
     </match>
-
-    <source>
-      @type tail
-      path /var/log/containers/paymentservice*.log
-      pos_file /var/log/paymentservice-gcp-containers.log.pos
-      tag paymentservice.*
-      read_from_head true
-      <parse>
-        @type multi_format
-        <pattern>
-          format json
-          time_key time
-          time_format %Y-%m-%dT%H:%M:%S.%NZ
-        </pattern>
-        <pattern>
-          format /^(?<time>.+) (?<stream>stdout|stderr) [^ ]* (?<log>.*)$/
-          time_format %Y-%m-%dT%H:%M:%S.%N%:z
-        </pattern>
-      </parse>
-    </source>
-
-    # Begin DLP customization section
-    <filter paymentservice.**>
-      @type gcp_dlp
-      deidentify_template DEIDENTIFY_TEMPLATE_NAME
-      use_metadata_service  true
-      @log_level info
-    </filter>
-
-    <match paymentservice.**>
-      @type google_cloud
-
-      project_id LOG_DESTINATION_PROJECT_ID
-      use_metadata_service true
-      @log_level debug
-    </match>
-    # End DLP customization section
 
   monitoring.conf: |-
     # This source is used to acquire approximate process start timestamp,

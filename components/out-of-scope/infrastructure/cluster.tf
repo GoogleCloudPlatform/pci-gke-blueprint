@@ -46,6 +46,10 @@ resource "google_container_cluster" "primary" {
 
   project = "${data.terraform_remote_state.project_out_of_scope.project_id}"
 
+  # Disabling provided logging service so as to use a custom fluentd DaemonSet
+  # to manage logging
+  logging_service = "none"
+
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
   # node pool and immediately delete it.

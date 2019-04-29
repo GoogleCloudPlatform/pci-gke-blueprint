@@ -25,7 +25,7 @@ console in the out-of-scope project's load balancer's details.
 
 ### Configuration
 
-1. From the `components/out-of-scope/application/` directory, run `DOMAIN_NAME=<your-domain-name.com> generate-config.sh`
+1. From the `components/out-of-scope/application/` directory, run `DOMAIN_NAME=<your-domain-name.com> ./generate-config.sh`
 That will generate a copy of `ingress.yaml` in the `kubernetes-manifests` directory
 that will create a generated Google-managed certificate and configure an Ingress
 rule that uses the certificate.

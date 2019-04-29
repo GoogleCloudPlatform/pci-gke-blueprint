@@ -31,6 +31,15 @@ data "terraform_remote_state" "project_in_scope" {
   }
 }
 
+data "terraform_remote_state" "project_out_of_scope" {
+  backend = "gcs"
+
+  config {
+    bucket = "${local.remote_state_bucket}"
+    prefix = "terraform/state/out-of-scope"
+  }
+}
+
 data "terraform_remote_state" "project_network" {
   backend = "gcs"
 
@@ -100,5 +109,16 @@ resource "google_project_iam_binding" "log_writer" {
     "${google_logging_project_sink.in-scope-flowlog-sink.writer_identity}",
     "serviceAccount:${data.terraform_remote_state.forseti.forseti_server_service_account}",
     "${google_logging_project_sink.in-scope-instance-sink.writer_identity}",
+  ]
+}
+
+# Grant permissions for the in- and out- service accounts to log to the management
+# project
+resource "google_project_iam_binding" "in-and-out-scope-sd-log_writer" {
+  role    = "roles/logging.logWriter"
+  project = "${data.terraform_remote_state.project_management.project_id}"
+  members = [
+    "serviceAccount:${data.terraform_remote_state.project_in_scope.service_account_email}",
+    "serviceAccount:${data.terraform_remote_state.project_out_of_scope.service_account_email}",
   ]
 }

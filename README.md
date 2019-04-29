@@ -481,7 +481,7 @@ kubectl --context out-of-scope set env deployment/checkoutservice \
   PAYMENT_SERVICE_ILB="$(kubectl --context=in-scope get service/paymentservice-internal -o=jsonpath='{.status.loadBalancer.ingress[0].ip}'):1443"
 
 # verify the above command with:
-kubectl set env deployment/checkoutservice  --list
+kubectl --context out-of-scope set env deployment/checkoutservice --list
 
 ```
 
