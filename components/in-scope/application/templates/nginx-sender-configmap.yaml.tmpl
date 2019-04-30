@@ -15,64 +15,73 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: nginx-config
+  name: nginx-config-sender
 data:
-  nginx.conf.template: |-
-    # A single worker is enough for load balancing and reverse proxing.
-    # While disk I/O can block an nginx worker, it's possible to enable
-    # async read and send for static files.
-    #
+  nginx.conf: |-
     worker_processes 1;
-    # The limit on the maximum number of open files for worker processes.
-    # This overrides the OS limit for the user the workers run as:
-    #   ulimit -a | grep 'open files'
-    #
-    # This value must be equal or higher than the worker_connections value.
-    #
     worker_rlimit_nofile 4096;
-    # Log to stdout.
-    # Use the stdout of init on Docker to get the logs to the log drain.
-    #
     error_log /proc/1/fd/1 warn;
-
     pid /var/run/nginx.pid;
-
     events {
-      # The maximum number of simultaneous connections that can be
-      # opened by a worker process. This limit is shared between
-      # client connections and upstream connections.
-      #
       worker_connections 4096;
-
-      # "on" if nginx worker_processes > 1
-      #
       accept_mutex off;
     }
-
     http {
       server_tokens off;
-
       include /etc/nginx/mime.types;
       default_type application/octet-stream;
-
       log_format  main  '[nginx] method=$request_method path=$request_uri '
                         'status=$status duration=$request_time size=$body_bytes_sent '
                         '"$remote_user" "$http_referer" "$http_user_agent"';
-      # Log to stdout.
-      # Use the stdout of init on Docker to get the logs to the log drain.
-      #
       access_log /proc/1/fd/1 main;
 
       server {
-        listen 50051 http2;
-
+        listen 3550 http2;
         location / {
-          # Allow self-signed certificates. TODO: add `tls-hipsterstore` certificate to trust store
           grpc_ssl_verify off;
-          # Proxy to TLS encrypted ILB
-          grpc_pass grpcs://${PAYMENT_SERVICE_ILB};
+          grpc_pass grpcs://ILB_NGINX_LISTENER_1:4443;
+        }
+      }
+      server {
+        listen 7000 http2;
+        location / {
+          grpc_ssl_verify off;
+          grpc_pass grpcs://ILB_NGINX_LISTENER_1:4444;
+        }
+      }
+      server {
+        listen 7070 http2;
+        location / {
+          grpc_ssl_verify off;
+          grpc_pass grpcs://ILB_NGINX_LISTENER_1:4445;
+        }
+      }
+      server {
+        listen 8080 http2;
+        location / {
+          grpc_ssl_verify off;
+          grpc_pass grpcs://ILB_NGINX_LISTENER_1:4446;
+        }
+      }
+      server {
+        listen 50051 http2;
+        location / {
+          grpc_ssl_verify off;
+          grpc_pass grpcs://ILB_NGINX_LISTENER_1:4447;
+        }
+      }
+      server {
+        listen 9555 http2;
+        location / {
+          grpc_ssl_verify off;
+          grpc_pass grpcs://ILB_NGINX_LISTENER_2:4448;
+        }
+      }
+      server {
+        listen 5000 http2;
+        location / {
+          grpc_ssl_verify off;
+          grpc_pass grpcs://ILB_NGINX_LISTENER_2:4449;
         }
       }
     }
-
-
