@@ -80,4 +80,7 @@ locals {
   project_management                               = "${var.project_prefix}-management"
   project_in_scope                                 = "${var.project_prefix}-in-scope"
   project_out_of_scope                             = "${var.project_prefix}-out-of-scope"
+
+  forseti_cscc_source_id          = ""
+  forseti_cscc_violations_enabled = "false"
 }

@@ -383,16 +383,8 @@ project.
 
 ### Install Forseti (optional)
 
-1. Change directories to `components/forseti`
-2. Create a new `backend.tf` by copying `backend.tf.example` and replacing the
-bucket value with your Terraform state bucket name
-3. Run `terraform init`
-4. Run `terraform apply`
-5. Verify by checking that the Management project has two new GCE instances:
-one for the Forseti client and one for the Forseti server. Additionally, there
-should also be a CloudSQL instance.
-6. To start feeding Forseti data into your organization's Cloud SCC follow the
-[instructions here](https://cloud.google.com/security-command-center/docs/how-to-output-forseti)
+See [Forseti documentation](docs/forseti.md) for details on setting up the Forseti component
+and integrating with Cloud Security Command Center
 
 
 ### Creating certificates and keys and Specifying certificates for use with your Ingress
