@@ -134,6 +134,24 @@ resource "google_compute_router_nat" "nat" {
   }
 }
 
+resource "google_project_iam_custom_role" "firewall_admin" {
+  project = "${local.project_network}"
+  role_id = "firewall_admin"
+  title   = "Firewall Admin"
+  permissions = [
+    "compute.firewalls.create",
+    "compute.firewalls.get",
+    "compute.firewalls.delete",
+    "compute.firewalls.list",
+    "compute.firewalls.update"
+  ]
+}
+
+# role_id of a form to be consumed by the role attribute of google_project_iam_member
+output firewall_admin_role_id_custom_formatted {
+  value = "projects/${local.project_network}/roles/${google_project_iam_custom_role.firewall_admin.role_id}"
+}
+
 output project_id {
   value = "${module.project_network.project_id}"
 }
