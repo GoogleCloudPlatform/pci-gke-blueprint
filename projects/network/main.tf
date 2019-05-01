@@ -143,7 +143,8 @@ resource "google_project_iam_custom_role" "firewall_admin" {
     "compute.firewalls.get",
     "compute.firewalls.delete",
     "compute.firewalls.list",
-    "compute.firewalls.update"
+    "compute.firewalls.update",
+    "compute.networks.updatePolicy"
   ]
 }
 
