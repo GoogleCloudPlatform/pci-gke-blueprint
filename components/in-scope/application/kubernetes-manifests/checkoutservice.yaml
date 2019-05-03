@@ -25,22 +25,7 @@ spec:
       labels:
         app: checkoutservice
     spec:
-      volumes:
-       - name: nginx-config
-         configMap:
-           name: nginx-config
       containers:
-        - name: nginx
-          image: nginx:1.14.2
-          volumeMounts:
-          - name: nginx-config
-            mountPath: /etc/nginx/conf.d/nginx.conf.template
-            subPath: nginx.conf.template
-          env:
-          - name: PAYMENT_SERVICE_ILB
-            value: paymentservice_ilb:1443
-          command: ["/bin/bash"]
-          args: ["-c", "envsubst < /etc/nginx/conf.d/nginx.conf.template > /etc/nginx/nginx.conf && exec nginx -g 'daemon off;'"]
         - name: server
           image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.1.0
           ports:
@@ -53,17 +38,17 @@ spec:
               command: ["/bin/grpc_health_probe", "-addr=:5050"]
           env:
           - name: PRODUCT_CATALOG_SERVICE_ADDR
-            value: "productcatalogservice:3550"
+            value: "nginx-sender:3550"
           - name: SHIPPING_SERVICE_ADDR
-            value: "shippingservice:50051"
+            value: "nginx-sender:50051"
           - name: PAYMENT_SERVICE_ADDR
-            value: "localhost:50051"
+            value: "paymentservice:50051"
           - name: EMAIL_SERVICE_ADDR
-            value: "emailservice:5000"
+            value: "nginx-sender:5000"
           - name: CURRENCY_SERVICE_ADDR
-            value: "currencyservice:7000"
+            value: "nginx-sender:7000"
           - name: CART_SERVICE_ADDR
-            value: "cartservice:7070"
+            value: "nginx-sender:7070"
           # - name: JAEGER_SERVICE_ADDR
           #   value: "jaeger-collector:14268"
           resources:

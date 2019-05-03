@@ -48,6 +48,18 @@ module "project_in_scope" {
   ]
 }
 
+data "google_project" "in_scope_google_project" {
+  project_id = "${module.project_in_scope.project_id}"
+}
+
+# Add this project's Kubernetes Engine Service Agent
+# to the custom "Firewall Admin" role managed in the network project
+resource "google_project_iam_member" "add_firewall_admin" {
+  project = "${data.terraform_remote_state.project_network.project_id}"
+  role    = "${data.terraform_remote_state.project_network.firewall_admin_role_id_custom_formatted}"
+  member  = "serviceAccount:service-${data.google_project.in_scope_google_project.number}@container-engine-robot.iam.gserviceaccount.com"
+}
+
 # Add permissions to write logs to Stackdriver
 resource "google_project_iam_binding" "add_stackdriver_write_role" {
   project = "${module.project_in_scope.project_id}"
