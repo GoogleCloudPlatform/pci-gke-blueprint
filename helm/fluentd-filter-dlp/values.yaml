@@ -2,6 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-deidentify_template_name: "projects/pci-poc-in-scope/deidentifyTemplates/11111111111"
-fluentd_image_remote_repo: "gcr.io/pci-poc-in-scope/fluentd:abababa"
+# deidentify_template_name: ""
+# fluentd_image_remote_repo: ""
 project_id: pci-poc-management

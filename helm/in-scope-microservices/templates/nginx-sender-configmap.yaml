@@ -39,49 +39,49 @@ data:
         listen 3550 http2;
         location / {
           grpc_ssl_verify off;
-          grpc_pass grpcs://{{ .Values.nginx_listener_1_ip }}:4443;
+          grpc_pass grpcs://{{ required "A valid .Values.nginx_listener_1_ip entry required!" .Values.nginx_listener_1_ip }}:4443;
         }
       }
       server {
         listen 7000 http2;
         location / {
           grpc_ssl_verify off;
-          grpc_pass grpcs://{{ .Values.nginx_listener_1_ip }}:4444;
+          grpc_pass grpcs://{{ required "A valid .Values.nginx_listener_1_ip entry required!" .Values.nginx_listener_1_ip }}:4444;
         }
       }
       server {
         listen 7070 http2;
         location / {
           grpc_ssl_verify off;
-          grpc_pass grpcs://{{ .Values.nginx_listener_1_ip }}:4445;
+          grpc_pass grpcs://{{ required "A valid .Values.nginx_listener_1_ip entry required!" .Values.nginx_listener_1_ip }}:4445;
         }
       }
       server {
         listen 8080 http2;
         location / {
           grpc_ssl_verify off;
-          grpc_pass grpcs://{{ .Values.nginx_listener_1_ip }}:4446;
+          grpc_pass grpcs://{{ required "A valid .Values.nginx_listener_1_ip entry required!" .Values.nginx_listener_1_ip }}:4446;
         }
       }
       server {
         listen 50051 http2;
         location / {
           grpc_ssl_verify off;
-          grpc_pass grpcs://{{ .Values.nginx_listener_1_ip }}:4447;
+          grpc_pass grpcs://{{ required "A valid .Values.nginx_listener_1_ip entry required!" .Values.nginx_listener_1_ip }}:4447;
         }
       }
       server {
         listen 9555 http2;
         location / {
           grpc_ssl_verify off;
-          grpc_pass grpcs://{{ .Values.nginx_listener_2_ip }}:4448;
+          grpc_pass grpcs://{{ required "A valid .Values.nginx_listener_2_ip entry required!" .Values.nginx_listener_2_ip }}:4448;
         }
       }
       server {
         listen 5000 http2;
         location / {
           grpc_ssl_verify off;
-          grpc_pass grpcs://{{ .Values.nginx_listener_2_ip }}:4449;
+          grpc_pass grpcs://{{ required "A valid .Values.nginx_listener_2_ip entry required!" .Values.nginx_listener_2_ip }}:4449;
         }
       }
     }

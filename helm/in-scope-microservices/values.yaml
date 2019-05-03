@@ -2,7 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-nginx_listener_1_ip: "10.10.20.214"
-nginx_listener_2_ip: "10.10.20.235"
-# domain_name is unset by default. Setting it will create a ManagedCertificate
-# and an Ingress configured to use that certificate
+# nginx_listener_1_ip: ""
+# nginx_listener_2_ip: ""
+
+# domain_name is unset by default. Leaving it unset will create an Ingress using
+# a self-signed certificate. Setting it will create a ManagedCertificate and an
+# Ingress configured to use that certificate

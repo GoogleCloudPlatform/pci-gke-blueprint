@@ -29,7 +29,7 @@ spec:
               fieldPath: spec.nodeName
         - name: STACKDRIVER_METADATA_AGENT_URL
           value: http://$(NODE_NAME):8799
-        image: {{ .Values.fluentd_image_remote_repo }}
+        image: {{ required "A valid .Values.fluentd_image_remote_repo entry required!" .Values.fluentd_image_remote_repo }}
         imagePullPolicy: Always
         livenessProbe:
           exec:
