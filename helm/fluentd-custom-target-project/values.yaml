@@ -3,5 +3,4 @@
 # Declare variables to be passed into your templates.
 
 image: gcr.io/stackdriver-agents/stackdriver-logging-agent:0.6-1.6.0-1
-# project_id: pci-poc-management
-project_id: jmound-8-pci-poc-management
+project_id: pci-poc-management
