@@ -1,6 +1,6 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
-namespace: kube-system
+namespace: {{ .Release.Namespace }}
 metadata:
   labels:
     k8s-app: fluentd-gcp
