@@ -470,7 +470,7 @@ helm install \
 
 ```
 helm install \
-  --name out-of-scope-microservices
+  --name out-of-scope-microservices \
   ./out-of-scope-microservices
 ```
 
@@ -481,9 +481,9 @@ kubectl config use-context in-scope
 helm install \
   --name fluentd-filter-dlp \
   --namespace kube-system \
-  --set project_id={$MANAGEMENT_PROJECT_ID} \
-  --set deidentify_template_name={$DEIDENTIFY_TEMPLATE_NAME}
-  --set fluentd_image_remote_repo={$FLUENTD_IMAGE_REMOTE_REPO}
+  --set project_id=${MANAGEMENT_PROJECT_ID} \
+  --set deidentify_template_name=${DEIDENTIFY_TEMPLATE_NAME} \
+  --set fluentd_image_remote_repo=${FLUENTD_IMAGE_REMOTE_REPO} \
   ./fluentd-filter-dlp
 ```
 
@@ -491,10 +491,10 @@ helm install \
 
 ```
 helm install \
-  --name in-scope-microservices
-  --set nginx_listener_1_ip={$NGINX_LISTENER_1_IP}
-  --set nginx_listener_2_ip={$NGINX_LISTENER_2_IP}
-  --set domain_name={$DOMAIN_NAME}
+  --name in-scope-microservices \
+  --set nginx_listener_1_ip=${NGINX_LISTENER_1_IP} \
+  --set nginx_listener_2_ip=${NGINX_LISTENER_2_IP} \
+  --set domain_name=${DOMAIN_NAME} \
   ./in-scope-microservices
 ```
 
