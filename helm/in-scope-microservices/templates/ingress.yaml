@@ -1,0 +1,31 @@
+{{- if .Values.domain_name  }}
+apiVersion: networking.gke.io/v1beta1
+kind: ManagedCertificate
+metadata:
+  name: frontend-certificate
+spec:
+  domains:
+    - {{ .Values.domain_name }}
+{{- end }}
+
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: frontend-external-tls
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: frontend-ext-ip
+    {{- if .Values.domain_name  }}
+    networking.gke.io/managed-certificates: frontend-certificate
+    {{- end }}
+spec:
+  {{- if not .Values.domain_name  }}
+  tls:
+  - secretName: tls-hipsterservice
+  {{- end }}
+  rules:
+  - http:
+      paths:
+      - backend:
+          serviceName: frontend
+          servicePort: 8080

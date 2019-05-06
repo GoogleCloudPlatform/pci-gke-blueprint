@@ -1,9 +1,9 @@
 apiVersion: extensions/v1beta1
 kind: DaemonSet
+namespace: {{ .Release.Namespace }}
 metadata:
   labels:
     k8s-app: fluentd-gcp
-    version: v3.2.0
   name: fluentd-gcp-v3.2.0
 spec:
   selector:
@@ -30,7 +30,7 @@ spec:
               fieldPath: spec.nodeName
         - name: STACKDRIVER_METADATA_AGENT_URL
           value: http://$(NODE_NAME):8799
-        image: gcr.io/stackdriver-agents/stackdriver-logging-agent:0.6-1.6.0-1
+        image: {{ required "A valid .Values.fluentd_image_remote_repo entry required!" .Values.fluentd_image_remote_repo }}
         imagePullPolicy: Always
         livenessProbe:
           exec:
@@ -100,7 +100,7 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: 30
       tolerations:
       - effect: NoExecute
         operator: Exists
@@ -119,7 +119,7 @@ spec:
           defaultMode: 420
           name: fluentd-gcp-config-old-v1.2.5
         name: config-volume
-  templateGeneration: 3
+  templateGeneration: 2
   updateStrategy:
     rollingUpdate:
       maxUnavailable: 1

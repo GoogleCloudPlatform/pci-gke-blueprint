@@ -445,7 +445,60 @@ tls.crt:  1021 bytes
 tls.key:  1675 bytes
 ```
 
-## Deploying the Microservices Demo Application
+## Deploying the Applications via Helm
+
+### Deploy the custom fluentd to the out-of-scope cluster:
+
+Set context to the out-of-scope cluster, and navigate to the helm directory:
+
+```
+kubectl config use-context out-of-scope
+cd {$REPOSITORY_ROOT}/helm
+```
+
+Deploy via helm:
+
+```
+helm install \
+  --name fluentd-custom-target-project \
+  --namespace kube-system \
+  --set project_id={$MANAGEMENT_PROJECT_ID} \
+  ./fluentd-custom-target-project
+```
+
+### Deploy the out-of-scope microservices:
+
+```
+helm install \
+  --name out-of-scope-microservices
+  ./out-of-scope-microservices
+```
+
+### Deploy the custom fluentd with DLP API filtering to the in-scope cluster:
+
+```
+kubectl config use-context in-scope
+helm install \
+  --name fluentd-filter-dlp \
+  --namespace kube-system \
+  --set project_id={$MANAGEMENT_PROJECT_ID} \
+  --set deidentify_template_name={$DEIDENTIFY_TEMPLATE_NAME}
+  --set fluentd_image_remote_repo={$FLUENTD_IMAGE_REMOTE_REPO}
+  ./fluentd-filter-dlp
+```
+
+### Deploy the in-scope microservices:
+
+```
+helm install \
+  --name in-scope-microservices
+  --set nginx_listener_1_ip={$NGINX_LISTENER_1_IP}
+  --set nginx_listener_2_ip={$NGINX_LISTENER_2_IP}
+  --set domain_name={$DOMAIN_NAME}
+  ./in-scope-microservices
+```
+
+## Deploying the Microservices Demo Application (non-helm)
 
 ### Apply the in-scope Kubernetes configurations
 
