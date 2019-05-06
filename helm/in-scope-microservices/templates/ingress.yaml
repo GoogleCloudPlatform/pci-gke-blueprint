@@ -8,6 +8,7 @@ spec:
     - {{ .Values.domain_name }}
 {{- end }}
 
+---
 
 apiVersion: extensions/v1beta1
 kind: Ingress
