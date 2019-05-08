@@ -15,6 +15,7 @@ kind: Ingress
 metadata:
   name: frontend-external-tls
   annotations:
+    kubernetes.io/ingress.allow-http: "false"
     kubernetes.io/ingress.global-static-ip-name: frontend-ext-ip
     {{- if .Values.domain_name  }}
     networking.gke.io/managed-certificates: frontend-certificate
