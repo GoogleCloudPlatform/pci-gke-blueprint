@@ -18,8 +18,8 @@
 
 INITIAL_COMPONENTS=( in-scope out-of-scope )
 for component in "${INITIAL_COMPONENTS[@]}"; do
-  echo "$component/infrastructure"
-  pushd "$component/infrastructure"
+  echo "${component}"
+  pushd "${component}"
     terraform init
     terraform plan -out terraform.out
     terraform apply terraform.out
@@ -28,8 +28,8 @@ done
 
 OPTIONAL_COMPONENTS=( logging )
 for component in "${OPTIONAL_COMPONENTS[@]}"; do
-  echo "$component"
-  pushd "$component"
+  echo "${component}"
+  pushd "${component}"
     terraform init
     terraform plan -out terraform.out
     terraform apply terraform.out
