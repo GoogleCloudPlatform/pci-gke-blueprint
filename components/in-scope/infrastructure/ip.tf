@@ -15,7 +15,7 @@
  */
 resource "google_compute_global_address" "frontend-ext-ip" {
   name         = "frontend-ext-ip"
-  project      = "${data.terraform_remote_state.project_out_of_scope.project_id}"
+  project      = "${data.terraform_remote_state.project_in_scope.project_id}"
   description  = "The external IP address for the frontend of the Demo site."
   address_type = "EXTERNAL"
 }
