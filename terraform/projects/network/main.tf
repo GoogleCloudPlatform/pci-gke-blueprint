@@ -140,16 +140,18 @@ resource "google_compute_router_nat" "nat" {
 }
 
 resource "google_project_iam_custom_role" "firewall_admin" {
-  project = "${local.project_network}"
-  role_id = "firewall_admin"
-  title   = "Firewall Admin"
+  depends_on = ["module.vpc_pci"]
+  project    = "${local.project_network}"
+  role_id    = "firewall_admin"
+  title      = "Firewall Admin"
+
   permissions = [
     "compute.firewalls.create",
     "compute.firewalls.get",
     "compute.firewalls.delete",
     "compute.firewalls.list",
     "compute.firewalls.update",
-    "compute.networks.updatePolicy"
+    "compute.networks.updatePolicy",
   ]
 }
 
