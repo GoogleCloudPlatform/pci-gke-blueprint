@@ -1,7 +1,7 @@
-kind: ConfigMap
 apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: fluentd-gcp-config-old-v1.2.5
+  name: fluentd-config
 namespace: {{ .Release.Namespace }}
 data:
   containers.input.conf: |-
@@ -103,6 +103,7 @@ data:
       max_lines 1000
     </match>
 
+    # Begin DLP customization section
     <source>
       @type tail
       path /var/log/containers/paymentservice*.log
@@ -123,7 +124,6 @@ data:
       </parse>
     </source>
 
-    # Begin DLP customization section
     <filter paymentservice.**>
       @type gcp_dlp
       deidentify_template {{ required "A valid .Values.deidentify_template_name entry required!" .Values.deidentify_template_name }}
@@ -212,7 +212,6 @@ data:
     # them separate since most users don't care about the node logs.
     <match kubernetes.**>
       @type google_cloud
-
       project_id {{ .Values.project_id }}
       # Try to detect JSON formatted log entries.
       detect_json true
@@ -248,7 +247,6 @@ data:
     # container logs.
     <match **>
       @type google_cloud
-
       project_id {{ .Values.project_id }}
       detect_json true
       enable_monitoring true

@@ -101,7 +101,7 @@ spec:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: 30
       tolerations:
       - effect: NoExecute
         operator: Exists
@@ -118,9 +118,8 @@ spec:
         name: varlibdockercontainers
       - configMap:
           defaultMode: 420
-          name: fluentd-gcp-config-old-v1.2.5
+          name: fluentd-config
         name: config-volume
-  templateGeneration: 3
   updateStrategy:
     rollingUpdate:
       maxUnavailable: 1

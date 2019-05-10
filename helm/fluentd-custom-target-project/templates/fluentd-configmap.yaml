@@ -1,4 +1,7 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentd-config
 namespace: {{ .Release.Namespace }}
 data:
   containers.input.conf: |-
@@ -408,6 +411,3 @@ data:
       read_from_head true
       tag node-problem-detector
     </source>
-kind: ConfigMap
-metadata:
-  name: fluentd-gcp-config-old-v1.2.5
