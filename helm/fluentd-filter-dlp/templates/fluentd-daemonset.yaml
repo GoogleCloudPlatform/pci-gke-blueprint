@@ -4,6 +4,7 @@ namespace: {{ .Release.Namespace }}
 metadata:
   labels:
     k8s-app: fluentd-gcp
+    version: v3.2.0
   name: fluentd-gcp-v3.2.0
 spec:
   selector:
@@ -117,9 +118,8 @@ spec:
         name: varlibdockercontainers
       - configMap:
           defaultMode: 420
-          name: fluentd-gcp-config-old-v1.2.5
+          name: fluentd-config
         name: config-volume
-  templateGeneration: 2
   updateStrategy:
     rollingUpdate:
       maxUnavailable: 1
