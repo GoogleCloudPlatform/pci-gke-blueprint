@@ -11,3 +11,4 @@ terraform.out
 *.pyc
 *.profraw
 *tfstate*
+workstation.env

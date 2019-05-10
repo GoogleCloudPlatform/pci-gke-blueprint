@@ -3,10 +3,11 @@ of the fluentd-gcp logging agent that includes the `fluent-plugin-gcp-dlp-filter
 
 ## Building and deploying
 
-To build the container, set `PROJECT_PREFIX` in `build.sh` before running it. It
-will build, tag and push the container to GCR. The image will be tagged with the
-git sha from `git log` and outputted to to the console. Use that value for
-`FLUENTD_IMAGE_REMOTE_REPO` when later configuring and running `../generate-config.sh`
+To build the container, make sure `TF_VAR_project_prefix` is set in your
+environment, then run `build.sh`. It will build, tag and push the container to
+GCR. The image will be tagged with the git sha from `git log` and outputted to
+to the console. Use that value for `FLUENTD_IMAGE_REMOTE_REPO` when later
+configuring and running `../generate-config.sh`
 
 # Versions
 

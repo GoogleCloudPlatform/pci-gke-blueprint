@@ -1,32 +1,76 @@
-# PCI Deployable Architecture on GCP with Terraform
+# PCI Starter
 
-These terraform files build out an example PCI architecture in GCP. These have
-not been certified by a PCI DSS auditor.
+![high level project view](docs/diagrams/highlevel_project_view.png)
 
-![high level project view](diagrams/highlevel_project_view.png)
+This repository contains a set of Terraform configurations and scripts to help
+demonstrate how to bootstrap a PCI environment in GCP. When appropriate, we
+also showcase GCP services, tools, or projects we think might be useful to
+start your own GCP PCI environment or as samples for any other purposes.
 
-## Requirements
+Here are the projects/services we make use of in this demo:
+
+- Terraform
+- Docker
+- Helm
+- Kubernetes
+- Google Kubernetes Engine
+- Forseti
+- StackDriver
+- Google-managed SSL Certificates
+- Cloud Data Loss Prevention
+- Cloud Storage
+- Cloud Security Command Center
+- GoogleCloudPlatform/microservices-demo
+- Fluentd
+- Nginx
+
+**PLEASE NOTE**: This project has not been certified by a PCI DSS auditor.
+
+## Table of Contents
+* [Prerequisites](#prerequisites)
+  * [Installation Dependencies](#installation-dependencies)
+  * [GCP IAM Requirements](#gcp-iam-requirements)
+* [Workstation Configuration](#workstation-configuration)
+* [Project Creation](#project-creation)
+  * [Terraform Admin Project](#terraform-admin-project)
+  * [Component Projects](#component-projects)
+* [Setup Component Infrastructure](#setup-component-infrastructure)
+  * [GKE Cluster Creation](#gke-cluster-creation)
+  * [Logging Setup](#logging-setup)
+* [Prepare Application Deployment](#prepare-application-deployment)
+  * [Retrieve Cluster Credentials and Configure Custom Contexts](#retrieve-cluster-credentials-and-configure-custom-contexts)
+  * [Create a Sample TLS Certificate Key to Use in the GKE Clusters](#create-a-sample-tls-certificatekey-to-use-in-the-gke-clusters)
+  * [Configure Cloud Data Loss Prevention Integration](#configure-cloud-data-loss-prevention-integration)
+  * [Helm Installation and Setup](#helm-installation-and-setup)
+* [Application Deployment](#application-deployment)
+  * [Deploy Fluentd Logger](#deploy-fluentd-logger)
+  * [Deploy the "out-of-scope" Microservices](#deploy-the-out-of-scope-microservices)
+  * [Deploy the DLP-Fluentd Logger](#deploy-the-dlp-fluentd-logger)
+  * [Deploy the "in-scope" Microservices](#deploy-the-in-scope-microservices)
+  * [Forseti Install and Setup](#forseti-install-and-setup)
+* [Feature Tour](#feature-tour)
+  * [Data Loss Prevention API In Action](#data-loss-prevention-api-in-action)
+  * [Forseti and Cloud Security Command Center](#forseti-and-cloud-security-command-center)
+  * [Audit Logs](#audit-logs)
+* [Architecture](#architecture)
+
+## Prerequisites
+
+Before starting, we need to make sure that our local environment is configured
+correctly. We need to make sure we have the correct tools and a GCP account
+with the correct permissions.
 
 ### Installation Dependencies
 - [Terraform](https://www.terraform.io/downloads.html)
 - [gcloud](https://cloud.google.com/sdk/gcloud/)
+- [Docker](https://docs.docker.com/install/)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- [helm](https://helm.sh/docs/using_helm/)
 
-## Getting Started
+### GCP IAM Requirements
 
-Set-up instructions borrowed
-[from](https://cloud.google.com/community/tutorials/managing-gcp-projects-with-terraform)
-please read this for a detailed description of what is going on.
-
-**NOTE**: The following steps to set up a Terraform Admin Service Account and
-Project will need to be run with a GCP user with broad Organization-level
-permissions.
-
-### Required Permissions
-
-![terraform service account diagram](diagrams/terraform_service_account_roles.png)
-
-In order to execute this module you will need to create a Service Account with the following roles:
+In order to execute this module you will need to create a Service Account with
+the following roles:
 
 - Project Setup
     - roles/resourcemanager.projectCreator on the folder
@@ -44,15 +88,14 @@ In order to execute this module you will need to create a Service Account with t
     - roles/iam.serviceAccountAdmin on the organization
     - roles/cloudsql.admin on the folder
 
-The following section attempts to walk through the Service Account setup but
-these steps may differ depending on your organization's IAM policies.
+Before continuing, make sure you have permissions to create this Service Account.
 
-### Define Terraform Variables
+## Workstation Configuration
 
-Begin by setting some environment variables to configure the Terraform Admin setup
-
-    gcloud organizations list
-    gcloud beta billing accounts list
+Before starting the demo creation, create a file called `workstation.env` with the
+following, making sure to replace any values to match your environment. This
+project comes with a `workstation.env.example` file you can copy to get
+started.
 
     # Choose your Organization
     export TF_VAR_org_id=YOUR_ORG_ID
@@ -61,215 +104,179 @@ Begin by setting some environment variables to configure the Terraform Admin set
     export TF_VAR_billing_account=YOUR_BILLING_ACCOUNT_ID
 
     # Folder that contains all projects for this demo
+    # If an appropriate folder doesn't already exist, please create one before
+    # continuing
     export TF_VAR_folder_id=YOUR_PROJECT_FOLDER
 
-    # Set bucket name for State files and a path to Credentials file
+    # The Project ID where Terraform state and service accounts are created.
     export TF_ADMIN_PROJECT=${USER}-terraform-admin
+
+    # Set bucket name for State files
     export TF_ADMIN_BUCKET=${USER}-terraform-admin
+
+    # Set the path to the service account credentials file
     export TF_CREDS=~/.config/gcloud/${USER}-terraform-admin.json
 
-### Set up a Terraform Admin Project
+    # Set default application credentials
+    export GOOGLE_APPLICATION_CREDENTIALS="${TF_CREDS}"
 
-Create your Terraform Admin project at the root of the organization or in a
-Folder
+    # Override the following project prefix if desired
+    export TF_VAR_project_prefix=pci-poc
 
-    # Create project inside a folder. (You will need to create the Folder if it doesn't exist)
-    gcloud alpha projects create ${TF_ADMIN_PROJECT} \
-      --folder ${TF_VAR_folder_id}
+    # Set a domain name to use for self-signed or managed certificates.
+    # If you are using GCP managed certificates, make sure to pick a domain
+    # that you can control DNS records for
+    # export DOMAIN_NAME=myhipsterstore.example.com
 
-    # Link Billing Account to your project
-    gcloud beta billing projects link ${TF_ADMIN_PROJECT} \
-      --billing-acconut=${TF_VAR_billing_account}
+    # The name of the DLP De-identification template
+    # You will set this later in the demo instructions.
+    # export DEIDENTIFY_TEMPLATE_NAME=TBD
 
+    # The remote repository for the customized Fluentd Image
+    # You will set this later in the demo instructions.
+    # export FLUENTD_IMAGE_REMOTE_REPO=TBD
 
-### Create the Terraform Admin Service Account
-
-A service account will be used to run Terraform. Set up the account
-
-    gcloud iam service-accounts create terraform \
-      --display-name "Terraform admin account"
-      --project ${TF_ADMIN_PROJECT}
-
-    gcloud iam service-accounts keys create ${TF_CREDS} \
-      --iam-account terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com
-
-Enable the required APIs
-
-    gcloud --project ${TF_ADMIN_PROJECT} services enable container.googleapis.com
-    gcloud --project ${TF_ADMIN_PROJECT} services enable cloudresourcemanager.googleapis.com
-    gcloud --project ${TF_ADMIN_PROJECT} services enable cloudbilling.googleapis.com
-    gcloud --project ${TF_ADMIN_PROJECT} services enable iam.googleapis.com
-    gcloud --project ${TF_ADMIN_PROJECT} services enable admin.googleapis.com
-    gcloud --project ${TF_ADMIN_PROJECT} services enable sqladmin.googleapis.com
-
-...and set up the proper IAM permissions
+Remember to always `source` this file before executing any of the steps in this demo!
 
 
-    # Add Viewer permissions for the Terraform Admin project
-    gcloud projects add-iam-policy-binding ${TF_ADMIN_PROJECT} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/viewer
+## Project Creation
 
-    # Add Storage Admin permissions for the Terraform Admin project
-    gcloud projects add-iam-policy-binding ${TF_ADMIN_PROJECT} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/storage.admin
+After configuring your local environment, we will now create the GCP projects
+needed for the demo starting with the Terraform Admin project.
 
-    # Add Storage Admin permissions to entire Folder
-    gcloud alpha resource-manager folders add-iam-policy-binding ${TF_VAR_folder_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/storage.admin
 
-    # Add Container cluster admin permissions to entire Folder
-    gcloud alpha resource-manager folders add-iam-policy-binding ${TF_VAR_folder_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/container.admin
+### Terraform Admin Project
 
-    # Add IAM serviceAccountUser permissions to entire Folder
-    gcloud alpha resource-manager folders add-iam-policy-binding ${TF_VAR_folder_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/iam.serviceAccountUser
+The first project to create is a special administrative project where Terraform
+resources are kept. The most important resource will be the Cloud Storage
+bucket that will contain the Terraform state files.
 
-    # Add Project Creator permissions to entire Folder
-    gcloud alpha resource-manager folders add-iam-policy-binding ${TF_VAR_folder_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/resourcemanager.projectCreator
+The following steps script out the creation of this project, resources, service
+account, and IAM bindings required for the demo. Though we recommend creating a
+new Terraform-specific service account to build this demo, you may want to
+consult your organization's internal GCP team to determine the best way to run
+this demo.
 
-    # Add Billing Project Manager permissions to all projects in Folder
-    gcloud alpha resource-manager folders add-iam-policy-binding ${TF_VAR_folder_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/billing.projectManager
+To set up the admin resources run the following commands:
 
-    # Add Compute Admin permissions to all projects in Folder
-    gcloud alpha resource-manager folders add-iam-policy-binding ${TF_VAR_folder_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/compute.admin
+    # Source the environment setup file you created previously
+    source workstation.env
 
-    # Add Shared VPC Admin permissions to all projects in Folder
-    gcloud alpha resource-manager folders add-iam-policy-binding ${TF_VAR_folder_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/compute.xpnAdmin
+    # Create the Admin project
+    ./_helpers/admin_project_setup.sh
 
-...additional IAM roles for managing Forseti infrastructure.
+    # Create the Terraform service account
+    ./_helpers/setup_service_account.sh
 
-**NOTE** Forseti requires broad permissions to operate. Therefore, the
-Terraform service account needs some organization-wide grant permission.
+    # Add Forseti-specific permissions to the service account
+    ./_helpers/forseti_admin_permissions.sh
 
-See
-<https://forsetisecurity.org/docs/v2.0/concepts/service-accounts.html#permissions>
-for a full list of IAM roles that Forseti needs to operate correctly.
+### Component Projects
 
-If you are not running the Forseti demo, skip these commands.
-
-    gcloud organizations add-iam-policy-binding ${TF_VAR_org_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/resourcemanager.organizationAdmin
-
-    gcloud organizations add-iam-policy-binding ${TF_VAR_org_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/serviceusage.serviceUsageAdmin
-
-    gcloud organizations add-iam-policy-binding ${TF_VAR_org_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/serviceusage.serviceAccountAdmin
-
-    gcloud alpha resource-manager folders add-iam-policy-binding ${TF_VAR_folder_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/cloudsql.admin
-
-...and StackDriver Logging
-
-    gcloud alpha resource-manager folders add-iam-policy-binding ${TF_VAR_folder_id} \
-      --member serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com \
-      --role roles/logging.configWriter
-
-### Create Terraform State Bucket
-
-`gsutil mb -p ${TF_ADMIN_PROJECT} gs://${TF_ADMIN_BUCKET}`
-
-Turn on versioning
-
-`gsutil versioning set on gs://${TF_ADMIN_BUCKET}`
-
-### Project Setup Configuration
-
-There are several GCP projects that need to be created:
+There are several GCP projects to create:
 
 * network
 * management
 * in-scope
 * out-of-scope
 
-Each of these projects is in a separate folder under `projects/`.
+Each of these projects is in a separate folder under `terraform/projects/`.
 
-1. Copy the `projects/shared.tf.example` file to a new file at
-`projects/shared.tf.local`.
-1. In `projects/shared.tf.local`, replace the `remote_state_bucket` local to the value of
-`${TF_ADMIN_BUCKET}`. Note: Since the variables `folder_id`, `billing_account`, and `org_id`
-were set earlier as environment variables for terraform's use
-(`TF_VAR_folder_id, TF_VAR_billing_account, and TF_VAR_org_id`),
-and environment variables override the file's content, they can be left with
-their default settings.
+**NOTE:**  **It's important to source the `workstation.env` file before running any
+`terraform` commands.**  The `TF_VAR_` environment varibles will override their
+respective terraform variables. For example, `TF_VAR_billing_account` will
+override the terraform variable, `billing_account`.
+
+1. Copy the `terraform/shared.tf.example` file to a new file at
+`terraform/shared.tf.local`.
+1. In `terraform/shared.tf.local`, replace the `remote_state_bucket` local to the value of
+`${TF_ADMIN_BUCKET}`.
 1. For each of the project folders, create a new `backend.tf` by copying the
 `backend.tf.example` file and replacing the `bucket` value  with the value of
 `${TF_ADMIN_BUCKET}`.
+1. Change to the `terraform/projects/` directory
+1. Execute the `build.sh` script
+1. Verify by checking the folder for the new projects
+`gcloud projects list --filter="parent.id=${TF_VAR_folder_id}"`
 
 
-## Building the Demo
+## Setup Component Infrastructure
 
-![deployed application overview](diagrams/deployed_application_overview.png)
+After creating the GCP projects, this section walks through creation of various
+resources that act as the infrastructure for a sample microservice
+architecture.
 
+**NOTE:** It's important to source the top-level `workstation.env` file before running any
+of these steps. This will make sure your environment variables are consistent
+and correct throughout the process.
 
-### Configure the Google Cloud Terraform Provider
+### GKE Cluster Creation
 
-    export GOOGLE_APPLICATION_CREDENTIALS=${TF_CREDS}
-    export GOOGLE_PROJECT=${TF_ADMIN_PROJECT}
+We create two Kubernetes clusters running on Google Kubernetes Engine. One
+cluster is marked for running services in scope of PCI compliance and another
+cluster for non-PCI resources.
 
-### Create the GCP Projects
-
-1. change directories to `projects/`
-2. Run `build.sh`
-3. This will run the proper Terraform commands in the right order to build each project
-
-### Create the GKE Clusters
-
-1. change directories to `components/in-scope/infrastructure`
-2. Create a new `backend.tf` by copying the `backend.tf.example` and replace
+1. Change directories to `terraform/components/in-scope`
+1. Create a new `backend.tf` by copying the `backend.tf.example` and replace
 the bucket value with your Terraform state bucket
-3. Run `terraform init`
-4. Run `terraform apply`
-5. Change directories to `components/out-of-scope/infrastructure`
-6. Repeat steps 2-4
-7. To verify navigate to the "[Kubernetes Engine](https://console.cloud.google.com/kubernetes/list)"
+1. Run `terraform init`
+1. Run `terraform plan -out terraform.out`
+1. Run `terraform apply terraform.out`
+1. Change directories to `terraform/components/out-of-scope`
+1. Repeat steps 2-4
+1. To verify navigate to the "[Kubernetes Engine](https://console.cloud.google.com/kubernetes/list)"
 section of Google Cloud Console. There should be one cluster called `in-scope`
 in your "In Scope" project and one cluster called `out-of-scope` for the Out of
 Scope project.
 
+### Logging Setup
 
-#### Retrieve cluster credentials, and configure custom contexts
+These steps will create sample Log Exports to send certain log events from
+'in-scope' resources to a storage bucket in the Management project. In a real
+PCI environment, these logs can be retained or analyzed further.
 
-Each cluster's credentials need to be retrieved. Additionally, the rest of these
-docs rely on [custom contexts](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/) being configured, since is simplifies working with
-multiple clusters simultaneously.
+1. Change directories to `terraform/components/logging`
+1. Create a new `backend.tf` by copying `backend.tf.example` and replacing the
+bucket value with your Terraform state bucket name
+1. Run `terraform init`
+1. Run `terraform plan -out terraform.out`
+1. Run `terraform apply terraform.out`
+1. Verify by checking the [Cloud Storage](https://console.cloud.google.com/storage/browser) browser
+of the Management project. There should be a new logging bucket that (within
+the next 30 minutes) should populate with exported logs from your In Scope
+project.
 
-[gcloud container clusters get-credentials](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubect) to set up `kubectl`'s configuration for the `in-scope` cluster
-and activate its context:
 
-Use `gcloud container clusters get-credentials in-scope --zone <ZONE> --project <IN-SCOPE-PROJECT-NAME>`
+## Prepare Application Deployment
 
-Rename the current context to the more user-friendly `in-scope`:
+The sample application chosen for this demo is the [Hipster Store Demo](https://github.com/GoogleCloudPlatform/microservices-demo)
+
+In this section, we'll deploy a custom version of this Hipster Store that
+separates any microservices that interact with Cardholder Data from those that
+don't.
+
+You can view a public, running version of the demo store [here](http://35.238.163.103)
+
+### Retrieve Cluster Credentials and Configure Custom Contexts
+
+Each cluster's credentials need to be retrieved so we can execute commands on
+the two Kubernetes clusters. We will also set up [custom contexts](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/)
+to simplify working with multiple clusters.
+
+First, let's use [gcloud container clusters get-credentials](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubect)
+to set up `kubectl`'s configuration for the `in-scope` cluster and activate its
+context and rename to the more user-friendly `in-scope`:
 
 ```
+gcloud container clusters get-credentials in-scope --zone us-central1-a --project ${TF_VAR_project_prefix}-in-scope
 kubectl config rename-context $(kubectl config current-context) in-scope
-kubectl config use-context in-scope
 ```
 
 Repeat the same for the `out-of-scope` cluster:
 
 ```
-gcloud container clusters get-credentials out-of-scope --zone <ZONE> --project <OUT-OF-SCOPE-PROJECT-NAME>
+gcloud container clusters get-credentials out-of-scope --zone us-central1-a --project "${TF_VAR_project_prefix}-out-of-scope"
 kubectl config rename-context $(kubectl config current-context) out-of-scope
-kubectl config use-context out-of-scope
 ```
 
 You can now target a specific cluster with `kubectl` by applying `--context` to
@@ -277,127 +284,26 @@ the command. For example, `kubectl --context in-scope cluster-info` will return
 cluster info on the `in-scope` cluster even if the current context is something
 else.
 
-
-### Deploy the custom DLP API filtering fluentd daemonset
-
-* This project includes a demonstration of the Data Loss API to filter logs from
-containers before writing to Stackdriver Logs. A copy of fluentd-gcp is deployed
-that includes the `fluent-plugin-gcp-dlp-filter` filter plugin. The fluentd configuration
-is customized so that the paymentservice container's logs are not directly sent to
-Stackdriver, but are first submitted to the DLP API for redaction. What is returned
-is then logged via submission to Stackdriver Logs.
-
-Specifically, after a purchase is completed in the microservices demo web application, a
-log event such as this is generated by the payment service (paymentservice):
-
-```
-{"severity":"info","time":1555345379891,"message":"PaymentService#Charge invoked with request {\"amount\":{\"currency_code\":\"USD\",\"units\":\"41\",\"nanos\":180000000},\"credit_card\":{\"credit_card_number\":\"4432-8015-6152-0454\",\"credit_card_cvv\":672,\"credit_card_expiration_year\":2020,\"credit_card_expiration_month\":1}}","pid":1,"hostname":"paymentservice-799fb9bdd-9sqdt","name":"paymentservice-server","v":1}
-```
-
-Once sent to the DLP API, this is what is returned and logged:
-
-```
-{
-...
- severity:  "INFO"  
- textPayload:  "{"severity":"info","time":1555345379891,"message":"PaymentService#Charge invoked with request {\"amount\":{\"currency_code\":\"USD\",\"units\":\"41\",\"nanos\":180000000},\"credit_card\":{\"credit_card_number\":\"[CREDIT_CARD_NUMBER]\",\"credit_card_cvv\":672,\"credit_card_expiration_year\":2020,\"credit_card_expiration_month\":1}}","pid":1,"hostname":"paymentservice-799fb9bdd-9sqdt","name":"paymentservice-server","v":1}
-"  
- timestamp:  "2019-04-15T16:22:59.891425283Z"  
-}
-```
+This will help us in the next section when we create self-signed certificates
+to encrypt traffic between our clusters.
 
 
-#### Tasks: Create a DLP Template
+### Create a Sample TLS Certificate+Key to Use in the GKE Clusters
 
-* Documentation: [Creating Cloud DLP de-identification templates](https://cloud.google.com/dlp/docs/creating-templates-deid)
+Based on [Using multiple SSL certificates in HTTP(s) load balancing with Ingress](https://cloud.google.com/kubernetes-engine/docs/how-to/ingress-multi-ssl#specifying_certificates_for_your_ingress).
 
-A deidentification template needs to be created to pass to the DLP API filter configuration. There are multiple methods for creating the template. The method used here is the GCP documentation's API Explorer.
+These steps will generate an SSL key+certificate pair and deploy to the
+Kubernetes cluster as a secret. This secret can be used for encrypting traffic
+across the two clusters.
 
-1. In a browser, navigate to https://cloud.google.com/dlp/docs/reference/rest/v2/projects.deidentifyTemplates/create
-1. In the sidebar, in the "Request parameters" section, in the `parent` field,
-enter `projects/<YOUR_INSCOPE_PROJECT>` eg. `projects/pci-poc-in-scope`
-1. In the request field, enter these values:
+**NOTE:** In a real environment, it wouldn't be recommended to use a
+self-signed certificate. Please follow your organization's policy guidelines
+for creating and managing private keys. This is for demonstration purposes
+only.
 
-       "deidentifyConfig": {
-           "infoTypeTransformations": {
-             "transformations": [
-               {
-                 "infoTypes": [
-                   {
-                     "name": "CREDIT_CARD_NUMBER"
-                   }
-                 ],
-                 "primitiveTransformation": {
-                   "replaceWithInfoTypeConfig": {}
-                 }
-               }
-             ]
-           }
-         }
-       }
-
-
-1. Use the "EXECUTE" button to trigger the API call. You'll be prompted for
-authentication if needed.
-1. A valid API call will result in a table towards the bottom with a green header
-and the string "200". Copy the value of the `name` field and use it as the value
-of `DEIDENTIFY_TEMPLATE_NAME` below.
-
-#### Build the custom fluentd-gcp container
-
-1. From the `components/in-scope/application/fluentd-dlp` directory
-1. Run `PROJECT_PREFIX=<IN_SCOPE_PROJECT_NAME> ./build.sh` which will build, tag, and push your docker container to the in-scope project. Take note of the outputted `FLUENTD_IMAGE_REMOTE_REPO` value.
-
-#### Deploy the daemonset
-
-1. From the `components/in-scope/application` directory
-1. Generate the configuration files with:
-
-    FLUENTD_IMAGE_REMOTE_REPO=<from above> DEIDENTIFY_TEMPLATE_NAME=<from above> ./generate-config.sh`
-
-1. Deploy the custom fluentd Daemonset and configmap:
+First, generate a self-signed certificate and key:
 
 ```
-kubectl --context in-scope -n kube-system apply -f kubernetes-manifests-system/
-```
-
-1. Verify Daemonset and Configmap deployment with:
-
-```
-kubectl --context in-scope -n kube-system get configmap,daemonset
-```
-
-
-
-### Set up Logging Configuration (optional)
-
-1. change directories to `components/logging`
-2. Create a new `backend.tf` by copying `backend.tf.example` and replacing the
-bucket value with your Terraform state bucket name
-3. Run `terraform init`
-4. Run `terraform apply`
-5. Verify by checking the [Cloud Storage](https://console.cloud.google.com/storage/browser) browser
-of the Management project. There should be a new logging bucket that (within
-the next 30 minutes) should populate with exported logs from your In Scope
-project.
-
-### Install Forseti (optional)
-
-See [Forseti documentation](docs/forseti.md) for details on setting up the Forseti component
-and integrating with Cloud Security Command Center
-
-
-### Creating certificates and keys and Specifying certificates for use with your Ingress
-
-![cross cluster tls](diagrams/cross_cluster_tls.png)
-
-Based on [Using multiple SSL certificates in HTTP(s) load balancing with Ingress](https://cloud.google.com/kubernetes-engine/docs/how-to/ingress-multi-ssl#specifying_certificates_for_your_ingress):
-
-Generate a certificate:
-
-```
-export DOMAIN_NAME="hipsterservice.gflocks.com"
-
 openssl genrsa -out hipsterservice.key 2048
 openssl req -new -key hipsterservice.key -out hipsterservice.csr \
     -subj "/CN=$DOMAIN_NAME"
@@ -430,7 +336,9 @@ Data
 tls.crt:  1021 bytes
 tls.key:  1675 bytes
 
+```
 
+```
 $ kubectl --context in-scope describe secrets tls-hipsterservice
 Name:         tls-hipsterservice
 Namespace:    default
@@ -445,40 +353,161 @@ tls.crt:  1021 bytes
 tls.key:  1675 bytes
 ```
 
-## Deploying the Applications via Helm
+### Configure Cloud Data Loss Prevention Integration
 
-### Deploy the custom fluentd to the out-of-scope cluster:
+This section walks through creating a Data Loss Prevention template and
+utilizing it to mask sensitive cardholder data from StackDriver logs.
 
-Set context to the out-of-scope cluster, and navigate to the helm directory:
+By using the Cloud Data Loss API, we can filter out sensitive data from log
+events before writing to Stackdriver Logs.
+
+The fluentd configuration is customized so that the paymentservice container's
+logs are not directly sent to Stackdriver, but are first submitted to the DLP
+API for redaction. What is returned is then logged via submission to
+Stackdriver Logs.
+
+Specifically, after a purchase is completed in the microservices demo web application, a
+log event such as this is generated by the payment service (paymentservice):
 
 ```
-kubectl config use-context out-of-scope
-cd {$REPOSITORY_ROOT}/helm
+{"severity":"info","time":1555345379891,"message":"PaymentService#Charge invoked with request {\"amount\":{\"currency_code\":\"USD\",\"units\":\"41\",\"nanos\":180000000},\"credit_card\":{\"credit_card_number\":\"4432-8015-6152-0454\",\"credit_card_cvv\":672,\"credit_card_expiration_year\":2020,\"credit_card_expiration_month\":1}}","pid":1,"hostname":"paymentservice-799fb9bdd-9sqdt","name":"paymentservice-server","v":1}
 ```
 
-Deploy via helm:
+Once sent to the DLP API, this is what is returned and logged:
+
+```
+{
+...
+ severity:  "INFO"  
+ textPayload:  "{"severity":"info","time":1555345379891,"message":"PaymentService#Charge invoked with request {\"amount\":{\"currency_code\":\"USD\",\"units\":\"41\",\"nanos\":180000000},\"credit_card\":{\"credit_card_number\":\"[CREDIT_CARD_NUMBER]\",\"credit_card_cvv\":672,\"credit_card_expiration_year\":2020,\"credit_card_expiration_month\":1}}","pid":1,"hostname":"paymentservice-799fb9bdd-9sqdt","name":"paymentservice-server","v":1}
+"  
+ timestamp:  "2019-04-15T16:22:59.891425283Z"  
+}
+```
+
+
+#### Create a DLP De-identification Template
+
+**Documentation**: [Creating Cloud DLP de-identification templates](https://cloud.google.com/dlp/docs/creating-templates-deid)
+
+A deidentification template needs to be created to pass to the DLP API filter
+configuration. There are multiple methods for creating the template. The method
+used here is the GCP documentation's API Explorer.
+
+1. In a browser, navigate to https://cloud.google.com/dlp/docs/reference/rest/v2/projects.deidentifyTemplates/create
+1. In the sidebar, in the "Request parameters" section, in the `parent` field,
+enter `projects/<YOUR_INSCOPE_PROJECT>` eg. `projects/pci-poc-in-scope`
+1. In the request field, enter these values:
+
+       "deidentifyConfig": {
+           "infoTypeTransformations": {
+             "transformations": [
+               {
+                 "infoTypes": [
+                   {
+                     "name": "CREDIT_CARD_NUMBER"
+                   }
+                 ],
+                 "primitiveTransformation": {
+                   "replaceWithInfoTypeConfig": {}
+                 }
+               }
+             ]
+           }
+         }
+       }
+1. Use the "EXECUTE" button to trigger the API call. You'll be prompted for
+authentication if needed.
+1. A valid API call will result in a table towards the bottom with a green header
+and the string "200". Copy the value of the `name` field to save it.
+1. In the `workstation.env` file, replace `TBD` from the line `export DEIDENTIFY_TEMPLATE_NAME=TBD` with this value.
+
+#### Build the Custom `fluentd-gcp` Container
+
+1. From the `applications/fluentd-dlp` directory
+1. Run `./build.sh` which will build, tag, and push your docker container to the
+in-scope project. Take note of the outputted `FLUENTD_IMAGE_REMOTE_REPO` value.
+1. In the `workstation.env` file, replace `TBD` from the line `export FLUENTD_IMAGE_REMOTE_REPO=TBD` with this.
+1. Re-run `source workstation.env` from the top-level of the project directory
+
+### Helm Installation and Setup
+
+Our Microservices Demo is configured using Helm charts. If you haven't already,
+now is a good time to install `helm` in your development environment.
+
+
+After making sure `helm` is installed, run the following commands to install the server-side component (`tiller`) to your clusters:
+
+```
+kubectl --context in-scope -n kube-system create sa tiller
+kubectl --context in-scope \
+        -n kube-system \
+        create clusterrolebinding tiller \
+        --clusterrole cluster-admin \
+        --serviceaccount=kube-system:tiller
+helm --kube-context in-scope  init --history-max 200 --service-account tiller
+```
+
+and repeat for the other cluster:
+
+```
+kubectl --context out-of-scope -n kube-system create sa tiller
+kubectl --context out-of-scope \
+        -n kube-system \
+        create clusterrolebinding tiller \
+        --clusterrole cluster-admin \
+        --serviceaccount=kube-system:tiller
+helm --kube-context out-of-scope  init --history-max 200 --service-account tiller
+```
+
+To verify run `kubectl --context in-scope get deploy,svc tiller-deploy -n kube-system`
+and repeat for the `out-of-scope` context if desired.
+
+## Application Deployment
+
+After setting up `helm`, change directories to the top-level `helm` directory
+and start by deploying the `fluentd` chart:
+
+### Deploy Fluentd Logger
+
+The following will deploy a specially configured Fluentd Logger to the cluster.
+This logger is set up to send all logs to the Management project. This way all
+logs for the application can be viewed under one StackDriver instance.
 
 ```
 helm install \
+  --kube-context out-of-scope \
   --name fluentd-custom-target-project \
   --namespace kube-system \
-  --set project_id={$MANAGEMENT_PROJECT_ID} \
+  --set project_id=${TF_VAR_project_prefix}-management \
   ./fluentd-custom-target-project
 ```
 
-### Deploy the out-of-scope microservices:
+### Deploy the "out-of-scope" Microservices
+
+This deploys all the Microservices that are considered out of PCI scope.
 
 ```
 helm install \
+  --kube-context out-of-scope \
   --name out-of-scope-microservices \
   ./out-of-scope-microservices
 ```
 
-### Deploy the custom fluentd with DLP API filtering to the in-scope cluster:
+### Deploy the DLP-Fluentd Logger
+
+Like the out of scope Fluentd Logger, this version sends all log messages to
+the Management project's StackDriver. Additionally, it uses the DLP API to scan
+for possible Credit Card number leaks and redacts the information.
+
+**NOTE**: Like the other components of this project, this is only meant for
+demonstration purposes. Real world log volume may be too cost prohibitive to
+use DLP in this way. Please consult with your GCP specialists for your specific
+use case and cost considerations!
 
 ```
-kubectl config use-context in-scope
 helm install \
+  --kube-context in-scope \
   --name fluentd-filter-dlp \
   --namespace kube-system \
   --set project_id=${MANAGEMENT_PROJECT_ID} \
@@ -487,80 +516,49 @@ helm install \
   ./fluentd-filter-dlp
 ```
 
-### Deploy the in-scope microservices:
+### Deploy the "in-scope" Microservices
+
+Finally, deploy the Microservices in PCI scope. Note that we use information
+from the `out-of-scope` cluster, specifically ingress IP information, to
+properly configure the deployment.
+
+Additionally, you can opt in to have GCP manage a valid SSL certificate for
+your Frontend. This requires that you own and manage your domain name. See
+[Additional Notes on Google-Managed SSL Certificates](docs/frontend-https.md) below for more
+information.
 
 ```
 helm install \
-  --name in-scope-microservices \
-  --set nginx_listener_1_ip=${NGINX_LISTENER_1_IP} \
-  --set nginx_listener_2_ip=${NGINX_LISTENER_2_IP} \
-  --set domain_name=${DOMAIN_NAME} \
+  --kube-context in-scope \
+  --name in-scope-microservices
+  --set nginx_listener_1_ip="$(kubectl --context out-of-scope get svc nginx-listener-1 -o jsonpath="{.status.loadBalancer.ingress[*].ip}")" \
+  --set nginx_listener_2_ip="$(kubectl --context out-of-scope get svc nginx-listener-2 -o jsonpath="{.status.loadBalancer.ingress[*].ip}")" \
+  # Setting the `domain_name` will create a Managed Certificate resource. Don't
+  # add this line if you can't manage your domain's DNS record. You will need
+  # to point the DNS record to your Ingress' external IP.
+  --set domain_name=${DOMAIN_NAME}
   ./in-scope-microservices
-```
-
-## Deploying the Microservices Demo Application (non-helm)
-
-### Apply the in-scope Kubernetes configurations
-
-```
-kubectl config use-context in-scope
-# from the components/in-scope/application directory
-skaffold run
-```
-
-### Configure the out-of-scope cluster's Frontend
-See [frontend-https](docs/frontend-https.md) for details on configuring SSL with a Google
-managed SSL certificate on the frontend Load Balancer
-
-### Apply the out-of-scope Kubernetes configurations
-
-```
-kubectl config use-context out-of-scope
-# from the components/out-of-scope/application directory
-skaffold run
-
-# this retrieves the correct paymentservice address from the in-scope cluster
-# and sets it as an environment variable on the checkoutservice Deployment
-kubectl --context out-of-scope set env deployment/checkoutservice \
-  -c nginx \
-  PAYMENT_SERVICE_ILB="$(kubectl --context=in-scope get service/paymentservice-internal -o=jsonpath='{.status.loadBalancer.ingress[0].ip}'):1443"
-
-# verify the above command with:
-kubectl --context out-of-scope set env deployment/checkoutservice --list
 
 ```
 
-### Cleaning up
+### Forseti Install and Setup
 
-Skaffold can be used to clean up what has been deployed via `skaffold run`:
+See [Forseti documentation](docs/forseti.md) for detailed instructions on
+setting up the Forseti component and integrating with Cloud Security Command
+Center
 
-```
-kubectl config use-context in-scope
-cd ...components/in-scope/application
-skaffold delete
 
-kubectl config use-context out-of-scope
-cd ...components/out-of-scope/application
-skaffold delete
-```
+## Feature Tour
+
+TODO
+
+### Data Loss Prevention API In Action
+
+### Forseti and Cloud Security Command Center
+
+### Audit Logs
 
 ## Architecture
 
-- Folder Level sink
-- Shared VPC
-  * 3 Subnets: Management/Forseti, PCI, Non-PCI
-  * PCI Firewall denies all from 0.0.0.0/0
-  * Non-PCI Firewall allows inbound http and https
-- In Scope Project
-    * 1 GKE Cluster for in-scope Payment service
-    * Project Level sink with a filter for GCE logs
-  * Out of Scope Project
-    * 1 GKE Cluster for out-of-scope services
-- GCS bucket for Logs
-- Forseti
-  * Creates Forseti service account and permissions
-  * Installs Forseti
-
-## Attribution
-
-* The manifests for the demo application are sourced from [microservices-demo:/kubernetes-manifests](https://github.com/GoogleCloudPlatform/microservices-demo/tree/master/kubernetes-manifests).
+See the separate [Architecture documentation](docs/architecture.md) for
+detailed diagrams and information.

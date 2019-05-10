@@ -2,7 +2,7 @@
 
 ## Installation
 
-1. Make sure your shell is in the `components/forseti` directory
+1. Make sure your shell is in the `terraform/components/forseti` directory
 1. Create a new `backend.tf` by copying `backend.tf.example` and replacing the
 bucket value with your Terraform state bucket name
 1. Run `terraform init`
@@ -30,7 +30,7 @@ Source ID. If you can't find it, navigate to the CSCC dashboard, click
 1. In your `shared.tf.local`, add values for the following local variables:
     - `forseti_cscc_source_id`: Value of the Forseti Source ID from the previous step
     - `forseti_cscc_violations_enabled`: `"true"`
-1. Navigate your shell to the `components/forseti` directory and re-run `terraform apply`. Terraform should take care of setting the configuration file values and re-deploying the Forseti Server.
+1. Navigate your shell to the `terraform/components/forseti` directory and re-run `terraform apply`. Terraform should take care of setting the configuration file values and re-deploying the Forseti Server.
 1. To validate immediately SSH to the forseti client compute instance and do the following tasks:
     1. [build an inventory](https://forsetisecurity.org/docs/v2.13/use/cli/inventory.html)
     1. [run a scan](https://forsetisecurity.org/docs/v2.13/use/cli/scanner.html)
