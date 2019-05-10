@@ -44,7 +44,8 @@ module "project_in_scope" {
     "containerregistry.googleapis.com",
     "cloudtrace.googleapis.com",
     "logging.googleapis.com",
-    "dlp.googleapis.com"
+    "dlp.googleapis.com",
+    "clouddebugger.googleapis.com"
   ]
 }
 
