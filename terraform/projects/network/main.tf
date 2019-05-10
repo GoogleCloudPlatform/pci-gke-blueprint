@@ -121,7 +121,12 @@ resource "google_compute_router" "router" {
 }
 
 resource "google_compute_router_nat" "nat" {
-  name                               = "in-scope-nat"
+  name = "in-scope-nat"
+
+  # Set an explicit dependency on VPC module.
+  # This enforces the correct creation order for this NAT resource.
+  depends_on = ["module.vpc_pci"]
+
   project                            = "${module.project_network.project_id}"
   router                             = "${google_compute_router.router.name}"
   region                             = "${var.region}"
