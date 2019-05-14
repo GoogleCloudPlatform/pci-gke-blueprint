@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 data "terraform_remote_state" "project_in_scope" {
   backend = "gcs"
 
@@ -32,18 +33,13 @@ data "terraform_remote_state" "project_network" {
 }
 
 resource "google_container_cluster" "primary" {
-  name = "${local.in_scope_cluster_name}"
-
+  name               = "${local.in_scope_cluster_name}"
   min_master_version = "${local.gke_minimum_version}"
-
-  location       = "us-central1-a"
-  node_locations = ["us-central1-b"]
-
-  network = "${data.terraform_remote_state.project_network.vpc_self_link}"
-
-  subnetwork = "https://www.googleapis.com/compute/v1/projects/${data.terraform_remote_state.project_network.project_id}/regions/${var.region}/subnetworks/${local.in_scope_subnet_name}"
-
-  project = "${data.terraform_remote_state.project_in_scope.project_id}"
+  location           = "us-central1-a"
+  node_locations     = ["us-central1-b"]
+  network            = "${data.terraform_remote_state.project_network.vpc_self_link}"
+  subnetwork         = "https://www.googleapis.com/compute/v1/projects/${data.terraform_remote_state.project_network.project_id}/regions/${var.region}/subnetworks/${local.in_scope_subnet_name}"
+  project            = "${data.terraform_remote_state.project_in_scope.project_id}"
 
   # We use a custom fluentd DaemonSet to manage logging. We do this so we can
   # configure filter rules to mask sensitive data.
@@ -61,8 +57,7 @@ resource "google_container_cluster" "primary" {
   node_config {
     service_account = "${data.terraform_remote_state.project_in_scope.service_account_email}"
     preemptible     = true
-
-    tags = ["in-scope"]
+    tags            = ["in-scope"]
   }
 
   # Setting an empty username and password explicitly disables basic auth
@@ -77,14 +72,15 @@ resource "google_container_cluster" "primary" {
     services_secondary_range_name = "${local.in_scope_services_ip_range_name}"
   }
 
-  # Private clusters do not have outbound access to internet.
-  # This *would* be fine for the Demo Microservices, but the `loadgenerator`
-  # has an init container that runs an `apk` command to install `curl` at
-  # deployment time...
-  # Uncommenting for now...
-  #
   private_cluster_config {
-    enable_private_nodes   = true
+    # In a private cluster, nodes do not have public IP addresses, and the master
+    # is inaccessible by default.
+    enable_private_nodes = true
+
+    # "Master IP range" is a private RFC 1918 reange for the master's VPC. The
+    # master range must not overlap with any subnet in your cluster's VPC. The
+    # master and your cluster use VPC peering to communicate privately.
+    # See https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters
     master_ipv4_cidr_block = "10.10.11.0/28"
   }
 
@@ -104,7 +100,6 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
   version            = "${local.gke_minimum_version}"
   location           = "us-central1-a"
   initial_node_count = 2
-
 
   autoscaling {
     min_node_count = 1
@@ -133,7 +128,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
       "https://www.googleapis.com/auth/monitoring",
       "https://www.googleapis.com/auth/trace.append",
       "https://www.googleapis.com/auth/cloud_debugger",
-      "https://www.googleapis.com/auth/cloud-platform"
+      "https://www.googleapis.com/auth/cloud-platform",
     ]
   }
 }

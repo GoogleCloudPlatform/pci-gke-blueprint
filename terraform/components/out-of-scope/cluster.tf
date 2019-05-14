@@ -33,21 +33,16 @@ data "terraform_remote_state" "project_network" {
 }
 
 resource "google_container_cluster" "primary" {
-  name = "${local.out_of_scope_cluster_name}"
-
+  name               = "${local.out_of_scope_cluster_name}"
   min_master_version = "${local.gke_minimum_version}"
+  location           = "us-central1-a"
+  node_locations     = ["us-central1-b"]
+  network            = "${data.terraform_remote_state.project_network.vpc_self_link}"
+  subnetwork         = "https://www.googleapis.com/compute/v1/projects/${data.terraform_remote_state.project_network.project_id}/regions/${var.region}/subnetworks/${local.out_of_scope_subnet_name}"
+  project            = "${data.terraform_remote_state.project_out_of_scope.project_id}"
 
-  location       = "us-central1-a"
-  node_locations = ["us-central1-b"]
-
-  network = "${data.terraform_remote_state.project_network.vpc_self_link}"
-
-  subnetwork = "https://www.googleapis.com/compute/v1/projects/${data.terraform_remote_state.project_network.project_id}/regions/${var.region}/subnetworks/${local.out_of_scope_subnet_name}"
-
-  project = "${data.terraform_remote_state.project_out_of_scope.project_id}"
-
-  # Disabling provided logging service so as to use a custom fluentd DaemonSet
-  # to manage logging
+  # We use a custom fluentd DaemonSet to manage logging. We do this so we can
+  # configure filter rules to mask sensitive data.
   logging_service = "none"
 
   # We can't create a cluster with no node pool defined, but we want to only use
@@ -75,6 +70,28 @@ resource "google_container_cluster" "primary" {
     use_ip_aliases                = true
     cluster_secondary_range_name  = "${local.out_of_scope_pod_ip_range_name}"
     services_secondary_range_name = "${local.out_of_scope_services_ip_range_name}"
+  }
+
+  private_cluster_config {
+    # In a private cluster, nodes do not have public IP addresses, and the master
+    # is inaccessible by default.
+    enable_private_nodes = true
+
+    # "Master IP range" is a private RFC 1918 reange for the master's VPC. The
+    # master range must not overlap with any subnet in your cluster's VPC. The
+    # master and your cluster use VPC peering to communicate privately.
+    # See https://cloud.google.com/kubernetes-engine/docs/how-to/private-clusters
+    master_ipv4_cidr_block = "10.10.12.0/28"
+  }
+
+  # Allows any traffic to access cluster master on its public IP address.
+  # Change this to limit accessibility to a range of IPs or corporate network.
+  # You'll need access to the master to run `kubectl` commands
+  master_authorized_networks_config {
+    cidr_blocks {
+      cidr_block   = "0.0.0.0/0"
+      display_name = "all"
+    }
   }
 }
 

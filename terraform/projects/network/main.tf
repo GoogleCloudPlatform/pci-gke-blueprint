@@ -98,21 +98,6 @@ module "vpc_pci" {
   ]
 }
 
-resource "google_compute_firewall" "out_of_scope_allow_external_http" {
-  name    = "out-of-scope-allow-external-http"
-  project = "${module.project_network.project_id}"
-  network = "${module.vpc_pci.network_name}"
-
-  allow {
-    protocol = "tcp"
-    ports    = ["80", "443"]
-  }
-
-  direction     = "INGRESS"
-  target_tags   = ["out-of-scope"]
-  source_ranges = ["0.0.0.0/0"]
-}
-
 resource "google_compute_router" "router" {
   name    = "router"
   project = "${module.project_network.project_id}"
@@ -135,6 +120,10 @@ resource "google_compute_router_nat" "nat" {
 
   subnetwork {
     name                    = "https://www.googleapis.com/compute/v1/projects/${module.project_network.project_id}/regions/${var.region}/subnetworks/${local.in_scope_subnet_name}"
+    source_ip_ranges_to_nat = ["PRIMARY_IP_RANGE"]
+  }
+  subnetwork {
+    name                    = "https://www.googleapis.com/compute/v1/projects/${module.project_network.project_id}/regions/${var.region}/subnetworks/${local.out_of_scope_subnet_name}"
     source_ip_ranges_to_nat = ["PRIMARY_IP_RANGE"]
   }
 }
