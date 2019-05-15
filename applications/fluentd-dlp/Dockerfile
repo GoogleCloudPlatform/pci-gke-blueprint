@@ -110,7 +110,7 @@ RUN apt-get update \
     # Log files.
     && find /var/log -name "*.log" -type f -delete \
     # Remove .c .cc .h files.
-    && (find /opt/google-fluentd/embedded/  -name '*.c' -o -name '*.cc' -o -name '*.h' -exec rm '{}' ';') \
+    && (find /opt/google-fluentd/embedded/ \( -name '*.c' -o -name '*.cc' -o -name '*.h' \) -exec rm '{}' ';') \
     # Remove unused api client libraries.
     && (find /opt/google-fluentd/embedded/lib/ruby/gems/*/gems/google-api-client-*/generated/google/apis -mindepth 1 -maxdepth 1 \! -name 'logging*' -exec  rm -rf '{}' ';') \
     && sed -i "s/num_threads 8/num_threads 8\n  detect_json true\n  # Enable metadata agent lookups.\n  enable_metadata_agent true\n  metadata_agent_url \"http:\/\/local-metadata-agent.stackdriver.com:8000\"/" "/etc/google-fluentd/google-fluentd.conf"
