@@ -43,7 +43,7 @@ module "project_out_of_scope" {
     "containerregistry.googleapis.com",
     "cloudtrace.googleapis.com",
     "logging.googleapis.com",
-    "clouddebugger.googleapis.com"
+    "clouddebugger.googleapis.com",
   ]
 }
 

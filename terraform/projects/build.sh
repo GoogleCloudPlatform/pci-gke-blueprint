@@ -15,7 +15,7 @@
 #
 
 INITIAL_PROJECTS=( network )
-for project in ${INITIAL_PROJECTS[@]}; do
+for project in "${INITIAL_PROJECTS[@]}"; do
   echo "$project"
   pushd "$project"
     terraform init
@@ -25,7 +25,7 @@ for project in ${INITIAL_PROJECTS[@]}; do
 done
 
 SERVICE_PROJECTS=( management in-scope out-of-scope )
-for project in ${SERVICE_PROJECTS[@]}; do
+for project in "${SERVICE_PROJECTS[@]}"; do
   echo "$project"
   pushd "$project"
     terraform init

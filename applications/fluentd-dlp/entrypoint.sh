@@ -20,7 +20,7 @@
 # For systems without journald.
 mkdir -p /var/log/journal
 
-if [ -z "${METADATA_AGENT_URL:-}" -a -n "${METADATA_AGENT_HOSTNAME:-}" ]; then
+if [ -z "${METADATA_AGENT_URL:-}" ] && [ -n "${METADATA_AGENT_HOSTNAME:-}" ]; then
   METADATA_AGENT_URL="http://${METADATA_AGENT_HOSTNAME}:8000"
 fi
 if [ -n "$METADATA_AGENT_URL" ]; then

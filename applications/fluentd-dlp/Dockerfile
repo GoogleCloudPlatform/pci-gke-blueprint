@@ -17,16 +17,17 @@
 FROM debian:9.5-slim
 
 # TODO: This may be a moving target, figure out how to pin.
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        curl \
-        gnupg2 \
-        lsb-release \
-        build-essential \
-        procps \
-        systemd \
-        ca-certificates \
-        adduser \
+        curl=7.52.1-5+deb9u9 \
+        gnupg2=2.1.18-8~deb9u4\
+        lsb-release=9.20161125 \
+        build-essential=12.3 \
+        procps=2:3.3.12-3+deb9u1 \
+        systemd=232-25+deb9u11 \
+        ca-certificates=20161130+nmu1+deb9u1 \
+        adduser=3.115 \
     # Install google-fluentd at version 1.6.0-1.
     && curl -sS https://dl.google.com/cloudagents/install-logging-agent.sh | REPO_SUFFIX=20181011-3 DO_NOT_INSTALL_CATCH_ALL_CONFIG=true bash \
     # If any additional gems need to be installed, it should happen before the
@@ -109,9 +110,9 @@ RUN apt-get update \
     # Log files.
     && find /var/log -name "*.log" -type f -delete \
     # Remove .c .cc .h files.
-    && (find /opt/google-fluentd/embedded/ -name '*.c' -o -name '*.cc' -o -name '*.h'  | xargs rm) \
+    && (find /opt/google-fluentd/embedded/  -name '*.c' -o -name '*.cc' -o -name '*.h' -exec rm '{}' ';') \
     # Remove unused api client libraries.
-    && (find /opt/google-fluentd/embedded/lib/ruby/gems/*/gems/google-api-client-*/generated/google/apis -mindepth 1 -maxdepth 1 \! -name 'logging*' | xargs rm -rf) \
+    && (find /opt/google-fluentd/embedded/lib/ruby/gems/*/gems/google-api-client-*/generated/google/apis -mindepth 1 -maxdepth 1 \! -name 'logging*' -exec  rm -rf '{}' ';') \
     && sed -i "s/num_threads 8/num_threads 8\n  detect_json true\n  # Enable metadata agent lookups.\n  enable_metadata_agent true\n  metadata_agent_url \"http:\/\/local-metadata-agent.stackdriver.com:8000\"/" "/etc/google-fluentd/google-fluentd.conf"
 
 

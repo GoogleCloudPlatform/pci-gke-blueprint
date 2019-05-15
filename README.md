@@ -379,10 +379,10 @@ Once sent to the DLP API, this is what is returned and logged:
 ```
 {
 ...
- severity:  "INFO"  
+ severity:  "INFO"
  textPayload:  "{"severity":"info","time":1555345379891,"message":"PaymentService#Charge invoked with request {\"amount\":{\"currency_code\":\"USD\",\"units\":\"41\",\"nanos\":180000000},\"credit_card\":{\"credit_card_number\":\"[CREDIT_CARD_NUMBER]\",\"credit_card_cvv\":672,\"credit_card_expiration_year\":2020,\"credit_card_expiration_month\":1}}","pid":1,"hostname":"paymentservice-799fb9bdd-9sqdt","name":"paymentservice-server","v":1}
-"  
- timestamp:  "2019-04-15T16:22:59.891425283Z"  
+"
+ timestamp:  "2019-04-15T16:22:59.891425283Z"
 }
 ```
 
