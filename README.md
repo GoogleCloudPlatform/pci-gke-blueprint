@@ -53,6 +53,7 @@ Here are the projects/services we make use of in this demo:
   * [Forseti and Cloud Security Command Center](#forseti-and-cloud-security-command-center)
   * [Audit Logs](#audit-logs)
 * [Architecture](#architecture)
+* [Development](#development)
 
 ## Prerequisites
 
@@ -378,10 +379,10 @@ Once sent to the DLP API, this is what is returned and logged:
 ```
 {
 ...
- severity:  "INFO"  
+ severity:  "INFO"
  textPayload:  "{"severity":"info","time":1555345379891,"message":"PaymentService#Charge invoked with request {\"amount\":{\"currency_code\":\"USD\",\"units\":\"41\",\"nanos\":180000000},\"credit_card\":{\"credit_card_number\":\"[CREDIT_CARD_NUMBER]\",\"credit_card_cvv\":672,\"credit_card_expiration_year\":2020,\"credit_card_expiration_month\":1}}","pid":1,"hostname":"paymentservice-799fb9bdd-9sqdt","name":"paymentservice-server","v":1}
-"  
- timestamp:  "2019-04-15T16:22:59.891425283Z"  
+"
+ timestamp:  "2019-04-15T16:22:59.891425283Z"
 }
 ```
 
@@ -562,3 +563,56 @@ TODO
 
 See the separate [Architecture documentation](docs/architecture.md) for
 detailed diagrams and information.
+
+## Development
+
+### Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for information on contributing to this project.
+
+### License Header
+
+Each source code requires a copyright notice in the header. Use the
+`addlicense` script to add this boilerplate to any new files.
+
+```
+go get -u github.com/google/addlicense
+```
+
+
+### Linting
+
+The makefile in this project will lint or sometimes just format any shell,
+Python, golang, Terraform, or Dockerfiles. The linters will only be run if
+the makefile finds files with the appropriate file extension.
+
+All of the linter checks are in the default make target, so you just have to
+run
+
+```
+make -s
+```
+
+The -s is for 'silent'. Successful output looks like this
+
+```
+Running shellcheck
+Running terraform validate
+Running hadolint on Dockerfiles
+Checking for required files
+Testing the validity of the header check
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.019s
+
+OK
+Checking file headers
+The following lines have trailing whitespace
+```
+
+The linters
+are as follows:
+* Shell - shellcheck. Can be found in homebrew
+* Terraform - terraform has a built-in linter in the 'terraform validate'
+command.
+* Dockerfiles - hadolint. Can be found in homebrew

@@ -1,5 +1,4 @@
 #!/bin/bash -e
-#
 # Copyright 2019 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,7 @@
 #
 
 INITIAL_PROJECTS=( network )
-for project in ${INITIAL_PROJECTS[@]}; do
+for project in "${INITIAL_PROJECTS[@]}"; do
   echo "$project"
   pushd "$project"
     terraform init
@@ -26,7 +25,7 @@ for project in ${INITIAL_PROJECTS[@]}; do
 done
 
 SERVICE_PROJECTS=( management in-scope out-of-scope )
-for project in ${SERVICE_PROJECTS[@]}; do
+for project in "${SERVICE_PROJECTS[@]}"; do
   echo "$project"
   pushd "$project"
     terraform init
