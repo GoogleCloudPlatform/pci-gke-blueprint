@@ -13,9 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-# set to the project ID of the destination container repository
-#PROJECT_PREFIX="pci-poc"
+# set to the value of TF_VAR_project_prefix, as defined in workstation.env, if set
+PROJECT_PREFIX="${TF_VAR_project_prefix:-}"
 
 TAG="$(git log --oneline -n1|cut -d' '  -f1)"
 docker build . -t "gcr.io/${PROJECT_PREFIX}-in-scope/fluentd:${TAG}"
