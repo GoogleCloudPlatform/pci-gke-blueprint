@@ -196,7 +196,8 @@ def get_files(extensions, ARGS):
                     dirs.remove(dpath)
             for name in walkfiles:
                 pathname = os.path.join(root, name)
-                files.append(pathname)
+                if not os.path.islink(pathname):
+                    files.append(pathname)
     files = normalize_files(files)
     outfiles = []
     for pathname in files:
