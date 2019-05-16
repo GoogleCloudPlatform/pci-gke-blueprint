@@ -132,7 +132,7 @@ resource "google_compute_router_nat" "nat" {
 # Sets up a custom Firewall Admin that we use to allow GKE's service agent to
 # freely modify Firewall rules on the network project.
 #
-# If you would like to manage Firewall rules manualy or through other means,
+# If you would like to manage Firewall rules manually or through other means,
 # remove these permissions.
 #
 resource "google_project_iam_custom_role" "firewall_admin" {
