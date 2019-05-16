@@ -122,12 +122,19 @@ resource "google_compute_router_nat" "nat" {
     name                    = "https://www.googleapis.com/compute/v1/projects/${module.project_network.project_id}/regions/${var.region}/subnetworks/${local.in_scope_subnet_name}"
     source_ip_ranges_to_nat = ["PRIMARY_IP_RANGE"]
   }
+
   subnetwork {
     name                    = "https://www.googleapis.com/compute/v1/projects/${module.project_network.project_id}/regions/${var.region}/subnetworks/${local.out_of_scope_subnet_name}"
     source_ip_ranges_to_nat = ["PRIMARY_IP_RANGE"]
   }
 }
 
+# Sets up a custom Firewall Admin that we use to allow GKE's service agent to
+# freely modify Firewall rules on the network project.
+#
+# If you would like to manage Firewall rules manualy or through other means,
+# remove these permissions.
+#
 resource "google_project_iam_custom_role" "firewall_admin" {
   depends_on = ["module.vpc_pci"]
   project    = "${local.project_network}"
