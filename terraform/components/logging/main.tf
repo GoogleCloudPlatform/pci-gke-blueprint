@@ -117,6 +117,7 @@ resource "google_project_iam_binding" "log_writer" {
 resource "google_project_iam_binding" "in-and-out-scope-sd-log_writer" {
   role    = "roles/logging.logWriter"
   project = "${data.terraform_remote_state.project_management.project_id}"
+
   members = [
     "serviceAccount:${data.terraform_remote_state.project_in_scope.service_account_email}",
     "serviceAccount:${data.terraform_remote_state.project_out_of_scope.service_account_email}",

@@ -45,7 +45,7 @@ module "project_in_scope" {
     "cloudtrace.googleapis.com",
     "logging.googleapis.com",
     "dlp.googleapis.com",
-    "clouddebugger.googleapis.com"
+    "clouddebugger.googleapis.com",
   ]
 }
 
@@ -96,18 +96,22 @@ resource "google_project_iam_binding" "add_storage_objectviewer_role" {
   members = ["serviceAccount:${module.project_in_scope.service_account_email}"]
 }
 
+# Adds the ability to redact content using Data-Loss Prevention API
 resource "google_project_iam_binding" "add_dlp_user_role" {
   project = "${module.project_in_scope.project_id}"
   role    = "roles/dlp.user"
   members = ["serviceAccount:${module.project_in_scope.service_account_email}"]
 }
 
+# Access DLP De-identification Templates
+# See <https://cloud.google.com/dlp/docs/concepts-templates>
 resource "google_project_iam_binding" "add_dlp_deidentifyTemplatesReader_role" {
   project = "${module.project_in_scope.project_id}"
   role    = "roles/dlp.deidentifyTemplatesReader"
   members = ["serviceAccount:${module.project_in_scope.service_account_email}"]
 }
 
+# Send Profiler data to CloudProfiler
 resource "google_project_iam_binding" "add_cloudprofiler_agent_role" {
   project = "${module.project_in_scope.project_id}"
   role    = "roles/cloudprofiler.agent"
