@@ -28,10 +28,13 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/currencyservice:v0.1.0
+        image: gcr.io/google-samples/microservices-demo/currencyservice:v0.1.1
         ports:
         - name: grpc
           containerPort: 7000
+        env:
+        - name: PORT
+          value: "7000"
         readinessProbe:
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:7000"]
