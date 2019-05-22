@@ -55,13 +55,3 @@ module "forseti-install" {
   # is thrown.
   server_grpc_allow_ranges = ["10.10.1.0/24"]
 }
-
-output "forseti_client_service_account" {
-  value       = "${module.forseti-install.forseti-client-service-account}"
-  description = "The service account generated for the forseti client instance"
-}
-
-output "forseti_server_service_account" {
-  value       = "${module.forseti-install.forseti-server-service-account}"
-  description = "The service account generated for the forseti server instance"
-}

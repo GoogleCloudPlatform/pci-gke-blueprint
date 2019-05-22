@@ -58,62 +58,85 @@ data "terraform_remote_state" "forseti" {
   }
 }
 
-resource "google_storage_bucket" "log_bucket" {
-  name    = "${var.project_prefix}-logging-bucket"
-  project = "${data.terraform_remote_state.project_management.project_id}"
+module "folder-sink-destination" {
+  source                   = "github.com/terraform-google-modules/terraform-google-log-export//modules/storage?ref=v2.0.0"
+  project_id               = "${data.terraform_remote_state.project_management.project_id}"
+  storage_bucket_name      = "${var.project_prefix}-folder-audit-log-bucket"
+  log_sink_writer_identity = "${module.folder-log-export.writer_identity}"
+}
+
+module "in-scope-project-sink-destination" {
+  source                   = "github.com/terraform-google-modules/terraform-google-log-export//modules/storage?ref=v2.0.0"
+  project_id               = "${data.terraform_remote_state.project_management.project_id}"
+  storage_bucket_name      = "${var.project_prefix}-in-scope-project-log-bucket"
+  log_sink_writer_identity = "${module.in-scope-project-log-export.writer_identity}"
+}
+
+module "network-project-sink-destination" {
+  source                   = "github.com/terraform-google-modules/terraform-google-log-export//modules/storage?ref=v2.0.0"
+  project_id               = "${data.terraform_remote_state.project_management.project_id}"
+  storage_bucket_name      = "${var.project_prefix}-network-project-log-bucket"
+  log_sink_writer_identity = "${module.network-project-log-export.writer_identity}"
 }
 
 #
 # Export all Audit Logs >= WARNING to Bucket from
 # the Folder level
 #
-resource "google_logging_folder_sink" "audit-log-sink" {
-  name             = "audit-log-sink"
-  folder           = "${var.folder_id}"
-  destination      = "storage.googleapis.com/${google_storage_bucket.log_bucket.name}"
-  filter           = "logName:activity AND severity >= WARNING"
-  include_children = "true"
+module "folder-log-export" {
+  source                 = "github.com/terraform-google-modules/terraform-google-log-export?ref=v2.0.0"
+  destination_uri        = "${module.folder-sink-destination.destination_uri}"
+  filter                 = "logName:cloudaudit.googleapis.com AND severity >= WARNING"
+  log_sink_name          = "folder-audit-log-sink"
+  parent_resource_id     = "${var.folder_id}"
+  parent_resource_type   = "folder"
+  unique_writer_identity = "true"
+  include_children       = "true"
 }
 
 #
-# In-Scope Logging Sinks
+# In-Scope Logging Sink
 #
-
-# GCE Logs
-resource "google_logging_project_sink" "in-scope-instance-sink" {
-  name                   = "in-scope-instance-sink"
-  project                = "${data.terraform_remote_state.project_in_scope.project_id}"
-  destination            = "storage.googleapis.com/${google_storage_bucket.log_bucket.name}"
-  filter                 = "resource.type = gce_instance"
+# Send the following logs to a storage bucket in the management project for
+# further analysis and retention:
+#
+# - GCE Instance Logs including lower severity Audit logs than the broader
+# Folder-level sink
+#
+module "in-scope-project-log-export" {
+  source                 = "github.com/terraform-google-modules/terraform-google-log-export?ref=v2.0.0"
+  destination_uri        = "${module.in-scope-project-sink-destination.destination_uri}"
+  filter                 = "resource.type=gce_instance"
+  log_sink_name          = "in-scope-project-log-sink"
+  parent_resource_id     = "${data.terraform_remote_state.project_in_scope.project_id}"
+  parent_resource_type   = "project"
   unique_writer_identity = "true"
 }
 
-# Subnetwork Flow Logs
-resource "google_logging_project_sink" "in-scope-flowlog-sink" {
-  name                   = "in-scope-flowlog-sink"
-  project                = "${data.terraform_remote_state.project_network.project_id}"
-  destination            = "storage.googleapis.com/${google_storage_bucket.log_bucket.name}"
-  filter                 = "resource.type = gce_subnetwork AND resource.labels.subnetwork_name = in-scope"
+#
+# Network Logging Sink
+#
+# Send the following logs to a storage bucket in the management project for
+# further analysis and retention:
+#
+# - VPC Flow logs for in-scope subnet
+#
+module "network-project-log-export" {
+  source                 = "github.com/terraform-google-modules/terraform-google-log-export?ref=v2.0.0"
+  destination_uri        = "${module.network-project-sink-destination.destination_uri}"
+  filter                 = "resource.type=gce_subnetwork AND resource.labels.subnetwork_name=in-scope AND logName:vpc_flows"
+  log_sink_name          = "network-project-log-sink"
+  parent_resource_id     = "${data.terraform_remote_state.project_network.project_id}"
+  parent_resource_type   = "project"
   unique_writer_identity = "true"
 }
 
 #
-# Grant permissions to Logging Bucket destination
-#
-resource "google_project_iam_binding" "log_writer" {
-  role    = "roles/storage.objectCreator"
-  project = "${data.terraform_remote_state.project_management.project_id}"
-
-  members = [
-    "${google_logging_folder_sink.audit-log-sink.writer_identity}",
-    "${google_logging_project_sink.in-scope-flowlog-sink.writer_identity}",
-    "serviceAccount:${data.terraform_remote_state.forseti.forseti_server_service_account}",
-    "${google_logging_project_sink.in-scope-instance-sink.writer_identity}",
-  ]
-}
-
 # Grant permissions for the in- and out- service accounts to log to the management
 # project
+#
+# These permissions are NOT related to the log exporting are used exclusively
+# for GKE instance nodes to log messages to Stackdriver
 resource "google_project_iam_binding" "in-and-out-scope-sd-log_writer" {
   role    = "roles/logging.logWriter"
   project = "${data.terraform_remote_state.project_management.project_id}"
