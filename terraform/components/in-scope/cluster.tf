@@ -64,6 +64,10 @@ resource "google_container_cluster" "primary" {
   master_auth {
     username = ""
     password = ""
+
+    client_certificate_config {
+      issue_client_certificate = false
+    }
   }
 
   ip_allocation_policy {
