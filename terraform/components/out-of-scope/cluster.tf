@@ -97,6 +97,7 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name               = "${local.out_of_scope_cluster_name}-node-pool"
+  depends_on         = ["google_container_cluster.primary"]
   version            = "${local.gke_minimum_version}"
   location           = "us-central1-a"
   initial_node_count = 2

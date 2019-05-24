@@ -55,9 +55,10 @@ module "vpc_pci" {
       subnet_flow_logs      = "true"
     },
     {
-      subnet_name   = "${local.out_of_scope_subnet_name}"
-      subnet_ip     = "${local.out_of_scope_subnet_cidr}"
-      subnet_region = "${var.region}"
+      subnet_name           = "${local.out_of_scope_subnet_name}"
+      subnet_ip             = "${local.out_of_scope_subnet_cidr}"
+      subnet_region         = "${var.region}"
+      subnet_private_access = "true"
     },
   ]
 
@@ -106,7 +107,7 @@ resource "google_compute_router" "router" {
 }
 
 resource "google_compute_router_nat" "nat" {
-  name = "in-scope-nat"
+  name = "nat-all"
 
   # Set an explicit dependency on VPC module.
   # This enforces the correct creation order for this NAT resource.
