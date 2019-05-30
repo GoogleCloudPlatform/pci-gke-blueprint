@@ -29,12 +29,12 @@ variable "billing_account" {
 
 variable "org_id" {
   description = "The ID of the Google Cloud Organization."
-  default = ""
+  default     = ""
 }
 
 variable "domain" {
   description = "The domain name of the Google Cloud Organization. Use this if you can't add Organization Viewer permissions to your TF ServiceAccount"
-  default = ""
+  default     = ""
 }
 
 variable "folder_id" {
@@ -57,29 +57,32 @@ variable "shared_vpc_name" {
 }
 
 locals {
-  folder_id                                        = "${ var.folder_id != "" ? var.folder_id : "" }"
-  remote_state_bucket                              = "BUCKET_PREFIX-terraform-admin"
-  gke_minimum_version                              = "1.12.6-gke.10"
+  folder_id               = "${ var.folder_id != "" ? var.folder_id : "" }"
+  remote_state_bucket     = "BUCKET_PREFIX-terraform-admin"
+  gke_minimum_version     = "1.12.6-gke.10"
+  self_link_subnet_prefix = "projects/${local.project_network}/regions/${var.region}/subnetworks/"
 
-  in_scope_cluster_name                            = "in-scope"
-  in_scope_pod_ip_range_name                       = "in-scope-pod-cidr"
-  in_scope_services_ip_range_name                  = "in-scope-services-cidr"
-  in_scope_subnet_name                             = "in-scope"
-  in_scope_subnet_cidr                             = "10.10.10.0/24"
+  in_scope_cluster_name           = "in-scope"
+  in_scope_pod_ip_range_name      = "in-scope-pod-cidr"
+  in_scope_services_ip_range_name = "in-scope-services-cidr"
+  in_scope_subnet_name            = "in-scope"
+  in_scope_subnet_self_link       = "${local.self_link_subnet_prefix}${local.in_scope_subnet_name}"
+  in_scope_subnet_cidr            = "10.10.10.0/24"
 
-  mgmt_subnet_name                                 = "management"
-  mgmt_subnet_cidr                                 = "10.10.1.0/24"
+  mgmt_subnet_name = "management"
+  mgmt_subnet_cidr = "10.10.1.0/24"
 
-  out_of_scope_cluster_name                        = "out-of-scope"
-  out_of_scope_pod_ip_range_name                   = "out-of-scope-pod-cidr"
-  out_of_scope_services_ip_range_name              = "out-of-scope-services-cidr"
-  out_of_scope_subnet_name                         = "out-of-scope"
-  out_of_scope_subnet_cidr                         = "10.10.20.0/24"
+  out_of_scope_cluster_name           = "out-of-scope"
+  out_of_scope_pod_ip_range_name      = "out-of-scope-pod-cidr"
+  out_of_scope_services_ip_range_name = "out-of-scope-services-cidr"
+  out_of_scope_subnet_name            = "out-of-scope"
+  out_of_scope_subnet_self_link       = "${local.self_link_subnet_prefix}${local.out_of_scope_subnet_name}"
+  out_of_scope_subnet_cidr            = "10.10.20.0/24"
 
-  project_network                                  = "${var.project_prefix}-network"
-  project_management                               = "${var.project_prefix}-management"
-  project_in_scope                                 = "${var.project_prefix}-in-scope"
-  project_out_of_scope                             = "${var.project_prefix}-out-of-scope"
+  project_network      = "${var.project_prefix}-network"
+  project_management   = "${var.project_prefix}-management"
+  project_in_scope     = "${var.project_prefix}-in-scope"
+  project_out_of_scope = "${var.project_prefix}-out-of-scope"
 
   forseti_cscc_source_id          = ""
   forseti_cscc_violations_enabled = "false"
