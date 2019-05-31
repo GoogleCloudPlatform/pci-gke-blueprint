@@ -57,6 +57,7 @@ Here are the projects/services we make use of in this demo:
   * [Audit and Flow Logs](/docs/audit-flow-logs.md)
 * [Architecture](#architecture)
 * [Development](#development)
+* [Known Issues and Limitations](#known-issues-and-limitations)
 
 ## Prerequisites
 
@@ -589,3 +590,39 @@ are as follows:
 * Terraform - terraform has a built-in linter in the 'terraform validate'
 command.
 * Dockerfiles - hadolint. Can be found in homebrew
+
+## Known Issues and Limitations
+
+- This demo assumes that it will be deployed to a dedicated GCP Organization.
+  Some components, like Forseti and Cloud Security Command Center are
+  Organization-level resources that are not designed to be run with multiple
+  copies in a single GCP Organization. They don't necessarily conflict, but
+  may, depending on your Organization's configuration.
+- If you can not create a new Organization for this demo, your particular GCP
+  Organization's roles and permissions may vary. You may need certain resources
+  such as the Terraform Service Account and Terraform Admin Project to be
+  created by a user with an `Organization Admin` or `Billing Account Admin` roles
+- Although it's not recommended, you **may** be able to build the demo with your
+  own User Account or a different Service Account. Just note that the
+  `terraform/components` resources need to be created with the same account
+  that created the projects (or has the `Project Owner` role on each project).
+  Because of this, switching back and forth between different accounts to run
+  these Terraform components will not work without manual intervention.
+- If your GCP Organization is shared between other users or teams, consult your
+  Organization Admins before building the demo.
+- This demo does not implement a multi-envionment setup. There is no
+  "pre-prod", "staging", or "production" differentiation. However, there is no
+  reason that this demo couldn't be expanded to accommodate such a setup if you
+  so choose.
+- Order matters when it comes to building the infrastructure, create the
+  projects in the order laid out in this documentation.
+- Some additional variables are required to integrate Forseti with Cloud
+  Security Command Center. It may require that Forseti is configured twice.
+  Once without the `forseti_cscc_source_id` variable set and once again after
+  CSCC is manually configured.
+- As detailed in [Data Loss Prevention API](docs/dlp.md), the DLP API filter, as
+  implemented, is not designed to scale to handle production loads.
+- This demo is meant to showcase various GCP features and act as a starting
+  point to build a security-focused environment focused on PCI compliance. This
+  demo has **not been reviewed by a QSA** and deploying an application into
+  this environment does not qualify as being PCI-DSS compliant
