@@ -103,6 +103,13 @@ following, making sure to replace any values to match your environment. This
 project comes with a `workstation.env.example` file you can copy to get
 started.
 
+You can find the values for `YOUR_ORG_ID` and `YOUR_BILLING_ACCOUNT_ID` using the following commands:
+```
+gcloud organizations list
+gcloud beta billing accounts list
+```
+To create a folder follow these [instructions](https://cloud.google.com/resource-manager/docs/creating-managing-folders). 
+
     # Choose your Organization
     export TF_VAR_org_id=YOUR_ORG_ID
 
