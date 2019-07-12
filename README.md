@@ -186,7 +186,7 @@ To set up the admin resources run the following commands:
 
 ### Component Projects
 
-There are several GCP projects to create:
+There 4 several GCP projects to create:
 
 * network
 * management
@@ -206,7 +206,7 @@ override the terraform variable, `billing_account`.
 `${TF_ADMIN_BUCKET}`.
 1. Change to the `terraform/projects/` directory
 1. Execute the `build.sh` script
-1. Verify by checking the folder for the new projects
+1. Verify the 4 projects have been created:
 `gcloud projects list --filter="parent.id=${TF_VAR_folder_id}"`
 
 
