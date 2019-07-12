@@ -108,7 +108,7 @@ You can find the values for `YOUR_ORG_ID` and `YOUR_BILLING_ACCOUNT_ID` using th
 gcloud organizations list
 gcloud beta billing accounts list
 ```
-To create a folder follow these [instructions](https://cloud.google.com/resource-manager/docs/creating-managing-folders). 
+To create a folder follow these [instructions](https://cloud.google.com/resource-manager/docs/creating-managing-folders).
 
     # Choose your Organization
     export TF_VAR_org_id=YOUR_ORG_ID
@@ -203,9 +203,6 @@ override the terraform variable, `billing_account`.
 1. Copy the `terraform/shared.tf.example` file to a new file at
 `terraform/shared.tf.local`.
 1. In `terraform/shared.tf.local`, replace the `remote_state_bucket` local to the value of
-`${TF_ADMIN_BUCKET}`.
-1. For each of the project folders, create a new `backend.tf` by copying the
-`backend.tf.example` file and replacing the `bucket` value  with the value of
 `${TF_ADMIN_BUCKET}`.
 1. Change to the `terraform/projects/` directory
 1. Execute the `build.sh` script

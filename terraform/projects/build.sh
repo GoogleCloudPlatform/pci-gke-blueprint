@@ -18,6 +18,8 @@ INITIAL_PROJECTS=( network )
 for project in "${INITIAL_PROJECTS[@]}"; do
   echo "$project"
   pushd "$project"
+    cp backend.tf.example backend.tf
+    sed -i  -e "s/TF_ADMIN_BUCKET/$TF_ADMIN_BUCKET/g" backend.tf
     terraform init
     terraform plan -out terraform.out
     terraform apply terraform.out
@@ -28,6 +30,8 @@ SERVICE_PROJECTS=( management in-scope out-of-scope )
 for project in "${SERVICE_PROJECTS[@]}"; do
   echo "$project"
   pushd "$project"
+     cp backend.tf.example backend.tf
+     sed -i  -e "s/TF_ADMIN_BUCKET/$TF_ADMIN_BUCKET/g" backend.tf
     terraform init
     terraform plan -out terraform.out
     terraform apply terraform.out
