@@ -218,42 +218,22 @@ architecture.
 of these steps. This will make sure your environment variables are consistent
 and correct throughout the process.
 
-### GKE Cluster Creation
+### GKE Cluster Creation and Logging Setup 
 
 We create two Kubernetes clusters running on Google Kubernetes Engine. One
 cluster is marked for running services in scope of PCI compliance and another
 cluster for non-PCI resources.
 
-1. Change directories to `terraform/components/in-scope`
-1. Create a new `backend.tf` by copying the `backend.tf.example` and replace
-the bucket value with your Terraform state bucket
-1. Run `terraform init`
-1. Run `terraform plan -out terraform.out`
-1. Run `terraform apply terraform.out`
-1. Change directories to `terraform/components/out-of-scope`
-1. Repeat steps 2-4
+1. Change directories to `terraform/components`
+1. Execute the `build.sh` script
 1. To verify navigate to the "[Kubernetes Engine](https://console.cloud.google.com/kubernetes/list)"
 section of Google Cloud Console. There should be one cluster called `in-scope`
 in your "In Scope" project and one cluster called `out-of-scope` for the Out of
 Scope project.
-
-### Logging Setup
-
-These steps will create sample Log Exports to send certain log events from
-'in-scope' resources to a storage bucket in the Management project. In a real
-PCI environment, these logs can be retained or analyzed further.
-
-1. Change directories to `terraform/components/logging`
-1. Create a new `backend.tf` by copying `backend.tf.example` and replacing the
-bucket value with your Terraform state bucket name
-1. Run `terraform init`
-1. Run `terraform plan -out terraform.out`
-1. Run `terraform apply terraform.out`
 1. Verify by checking the [Cloud Storage](https://console.cloud.google.com/storage/browser) browser
 of the Management project. There should be a new logging bucket that (within
 the next 30 minutes) should populate with exported logs from your In Scope
 project.
-
 
 ## Prepare Application Deployment
 
