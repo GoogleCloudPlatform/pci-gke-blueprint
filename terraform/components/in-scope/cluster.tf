@@ -18,7 +18,7 @@ data "terraform_remote_state" "project_in_scope" {
   backend = "gcs"
 
   config {
-    bucket = "${local.remote_state_bucket}"
+    bucket = "${var.remote_state_bucket}"
     prefix = "terraform/state/in-scope"
   }
 }
@@ -27,7 +27,7 @@ data "terraform_remote_state" "project_network" {
   backend = "gcs"
 
   config {
-    bucket = "${local.remote_state_bucket}"
+    bucket = "${var.remote_state_bucket}"
     prefix = "terraform/state/network"
   }
 }

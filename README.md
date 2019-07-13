@@ -202,8 +202,6 @@ override the terraform variable, `billing_account`.
 
 1. Copy the `terraform/shared.tf.example` file to a new file at
 `terraform/shared.tf.local`.
-1. In `terraform/shared.tf.local`, replace the `remote_state_bucket` local to the value of
-`${TF_ADMIN_BUCKET}`.
 1. Change to the `terraform/projects/` directory
 1. Execute the `build.sh` script
 1. Verify the 4 projects have been created:
