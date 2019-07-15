@@ -218,7 +218,7 @@ architecture.
 of these steps. This will make sure your environment variables are consistent
 and correct throughout the process.
 
-### GKE Cluster Creation and Logging Setup 
+###
 
 We create two Kubernetes clusters running on Google Kubernetes Engine. One
 cluster is marked for running services in scope of PCI compliance and another
@@ -359,7 +359,8 @@ used here is the GCP documentation's API Explorer.
 1. In the sidebar, in the "Request parameters" section, in the `parent` field,
 enter `projects/<YOUR_INSCOPE_PROJECT>` eg. `projects/pci-poc-in-scope`
 1. In the request field, enter these values:
-
+  {
+    "deidentifyTemplate": {
        "deidentifyConfig": {
            "infoTypeTransformations": {
              "transformations": [
@@ -377,6 +378,7 @@ enter `projects/<YOUR_INSCOPE_PROJECT>` eg. `projects/pci-poc-in-scope`
            }
          }
        }
+     }
 1. Use the "EXECUTE" button to trigger the API call. You'll be prompted for
 authentication if needed.
 1. A valid API call will result in a table towards the bottom with a green header
@@ -489,15 +491,16 @@ your Frontend. This requires that you own and manage your domain name. See
 information.
 
 ```
+# Setting the `domain_name` will create a Managed Certificate resource. Don't
+# add this line if you can't manage your domain's DNS record. You will need
+# to point the DNS record to your Ingress' external IP.
+
 helm install \
   --kube-context in-scope \
-  --name in-scope-microservices
+  --name in-scope-microservices \
   --set nginx_listener_1_ip="$(kubectl --context out-of-scope get svc nginx-listener-1 -o jsonpath="{.status.loadBalancer.ingress[*].ip}")" \
   --set nginx_listener_2_ip="$(kubectl --context out-of-scope get svc nginx-listener-2 -o jsonpath="{.status.loadBalancer.ingress[*].ip}")" \
-  # Setting the `domain_name` will create a Managed Certificate resource. Don't
-  # add this line if you can't manage your domain's DNS record. You will need
-  # to point the DNS record to your Ingress' external IP.
-  --set domain_name=${DOMAIN_NAME}
+  --set domain_name=${DOMAIN_NAME} \
   ./in-scope-microservices
 ```
 
