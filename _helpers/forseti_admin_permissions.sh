@@ -47,9 +47,9 @@ gcloud organizations add-iam-policy-binding "${TF_VAR_org_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/serviceusage.serviceUsageAdmin
 
-gcloud organizations add-iam-policy-binding "${TF_VAR_org_id}" \
+gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
-  --role roles/serviceusage.serviceAccountAdmin
+  --role roles/iam.serviceAccountAdmin
 
 gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
