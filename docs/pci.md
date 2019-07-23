@@ -2,7 +2,7 @@
 
 | PCI DSS Requirements v3.2.1 | Description of Implementation |
 | -------------------------- | ------------------------------ |
-| 1. Install and maintain a firewall configuration to protect cardholder data | |
+| `1. Install and maintain a firewall configuration to protect cardholder data` | |
 | 1.1.2 Current network diagram that identifies all connections between the cardholder data environment and other networks, including any wireless networks | [Architecture Diagram](https://github.com/GoogleCloudPlatform/terraform-pci-starter/blob/master/docs/diagrams/application_traffic.png) |
 | 1.1.3 Current diagram that shows all cardholder data flows across systems and networks. | [Architecture Diagram](https://github.com/GoogleCloudPlatform/terraform-pci-starter/blob/master/docs/diagrams/application_traffic.png) |
 | 1.1.4 Requirements for a firewall at each Internet connection and between any demilitarized zone (DMZ) and the Internal network zone | A frontend load balancer is used to restrict Internet traffic to the frontend kubernetes pods only on port 443 |
@@ -14,7 +14,7 @@
 | 1.3.5 Permit only “established” connections into the network. | Firewall rules are use to restrict inbound and outbound traffic |
 | 1.3.6 Place system components that store cardholder data (such as a database) in an internal network zone, segregated from the DMZ and other untrusted networks. | PCI nodes are in their own subnet which is different from the public load balancer(s) |
 | 1.3.7 Do not disclose private IP addresses and routing information to unauthorized parties. | RFC 1918 address space is used for all PCI nodes |
-| 2. Do not use vendor-supplied defaults for system passwords and other security parameters | |
+| `2. Do not use vendor-supplied defaults for system passwords and other security parameters` | |
 | 3. Protect stored cardholder data | |
 | 4. Encrypt transmission of cardholder data across open, public networks | |
 | 5. Use and regularly update anti-virus software or programs | |
