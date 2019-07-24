@@ -218,8 +218,6 @@ architecture.
 of these steps. This will make sure your environment variables are consistent
 and correct throughout the process.
 
-###
-
 We create two Kubernetes clusters running on Google Kubernetes Engine. One
 cluster is marked for running services in scope of PCI compliance and another
 cluster for non-PCI resources.
