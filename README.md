@@ -1,5 +1,4 @@
 # PCI Starter
-**DISCLAIMER**: This project has not been certified by a PCI DSS auditor. This project is for informational and demonstrational purposes only. We do not intend the information or recommendations in this project to constitute legal or audit advice. Each customer/person is responsible for independently evaluating their own particular use of the services as appropriate to support its legal and compliance obligations and is intended to be used for demonstration purposes only. There are many ways to to meet PCI requirements as they are left open for interpretation.
 
 ![high level project view](docs/diagrams/highlevel_project_view.png)
 
