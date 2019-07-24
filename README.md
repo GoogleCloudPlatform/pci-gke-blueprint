@@ -103,6 +103,13 @@ following, making sure to replace any values to match your environment. This
 project comes with a `workstation.env.example` file you can copy to get
 started.
 
+You can find the values for `YOUR_ORG_ID` and `YOUR_BILLING_ACCOUNT_ID` using the following commands:
+```
+gcloud organizations list
+gcloud beta billing accounts list
+```
+To create a folder follow these [instructions](https://cloud.google.com/resource-manager/docs/creating-managing-folders).
+
     # Choose your Organization
     export TF_VAR_org_id=YOUR_ORG_ID
 
@@ -179,7 +186,7 @@ To set up the admin resources run the following commands:
 
 ### Component Projects
 
-There are several GCP projects to create:
+There 4 several GCP projects to create:
 
 * network
 * management
@@ -195,14 +202,9 @@ override the terraform variable, `billing_account`.
 
 1. Copy the `terraform/shared.tf.example` file to a new file at
 `terraform/shared.tf.local`.
-1. In `terraform/shared.tf.local`, replace the `remote_state_bucket` local to the value of
-`${TF_ADMIN_BUCKET}`.
-1. For each of the project folders, create a new `backend.tf` by copying the
-`backend.tf.example` file and replacing the `bucket` value  with the value of
-`${TF_ADMIN_BUCKET}`.
 1. Change to the `terraform/projects/` directory
 1. Execute the `build.sh` script
-1. Verify by checking the folder for the new projects
+1. Verify the 4 projects have been created:
 `gcloud projects list --filter="parent.id=${TF_VAR_folder_id}"`
 
 
@@ -216,42 +218,20 @@ architecture.
 of these steps. This will make sure your environment variables are consistent
 and correct throughout the process.
 
-### GKE Cluster Creation
-
 We create two Kubernetes clusters running on Google Kubernetes Engine. One
 cluster is marked for running services in scope of PCI compliance and another
 cluster for non-PCI resources.
 
-1. Change directories to `terraform/components/in-scope`
-1. Create a new `backend.tf` by copying the `backend.tf.example` and replace
-the bucket value with your Terraform state bucket
-1. Run `terraform init`
-1. Run `terraform plan -out terraform.out`
-1. Run `terraform apply terraform.out`
-1. Change directories to `terraform/components/out-of-scope`
-1. Repeat steps 2-4
+1. Change directories to `terraform/components`
+1. Execute the `build.sh` script
 1. To verify navigate to the "[Kubernetes Engine](https://console.cloud.google.com/kubernetes/list)"
 section of Google Cloud Console. There should be one cluster called `in-scope`
 in your "In Scope" project and one cluster called `out-of-scope` for the Out of
 Scope project.
-
-### Logging Setup
-
-These steps will create sample Log Exports to send certain log events from
-'in-scope' resources to a storage bucket in the Management project. In a real
-PCI environment, these logs can be retained or analyzed further.
-
-1. Change directories to `terraform/components/logging`
-1. Create a new `backend.tf` by copying `backend.tf.example` and replacing the
-bucket value with your Terraform state bucket name
-1. Run `terraform init`
-1. Run `terraform plan -out terraform.out`
-1. Run `terraform apply terraform.out`
 1. Verify by checking the [Cloud Storage](https://console.cloud.google.com/storage/browser) browser
 of the Management project. There should be a new logging bucket that (within
 the next 30 minutes) should populate with exported logs from your In Scope
 project.
-
 
 ## Prepare Application Deployment
 
@@ -377,7 +357,8 @@ used here is the GCP documentation's API Explorer.
 1. In the sidebar, in the "Request parameters" section, in the `parent` field,
 enter `projects/<YOUR_INSCOPE_PROJECT>` eg. `projects/pci-poc-in-scope`
 1. In the request field, enter these values:
-
+  {
+    "deidentifyTemplate": {
        "deidentifyConfig": {
            "infoTypeTransformations": {
              "transformations": [
@@ -395,6 +376,7 @@ enter `projects/<YOUR_INSCOPE_PROJECT>` eg. `projects/pci-poc-in-scope`
            }
          }
        }
+     }
 1. Use the "EXECUTE" button to trigger the API call. You'll be prompted for
 authentication if needed.
 1. A valid API call will result in a table towards the bottom with a green header
@@ -507,15 +489,16 @@ your Frontend. This requires that you own and manage your domain name. See
 information.
 
 ```
+# Setting the `domain_name` will create a Managed Certificate resource. Don't
+# add this line if you can't manage your domain's DNS record. You will need
+# to point the DNS record to your Ingress' external IP.
+
 helm install \
   --kube-context in-scope \
-  --name in-scope-microservices
+  --name in-scope-microservices \
   --set nginx_listener_1_ip="$(kubectl --context out-of-scope get svc nginx-listener-1 -o jsonpath="{.status.loadBalancer.ingress[*].ip}")" \
   --set nginx_listener_2_ip="$(kubectl --context out-of-scope get svc nginx-listener-2 -o jsonpath="{.status.loadBalancer.ingress[*].ip}")" \
-  # Setting the `domain_name` will create a Managed Certificate resource. Don't
-  # add this line if you can't manage your domain's DNS record. You will need
-  # to point the DNS record to your Ingress' external IP.
-  --set domain_name=${DOMAIN_NAME}
+  --set domain_name=${DOMAIN_NAME} \
   ./in-scope-microservices
 ```
 
