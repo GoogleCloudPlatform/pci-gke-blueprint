@@ -18,6 +18,12 @@ INITIAL_COMPONENTS=( in-scope out-of-scope )
 for component in "${INITIAL_COMPONENTS[@]}"; do
   echo "${component}"
   pushd "${component}"
+    cp backend.tf.example backend.tf
+    if [[ `uname -s` == 'Darwin' ]]; then
+      sed -i .tmp  "s/TF_ADMIN_BUCKET/$TF_ADMIN_BUCKET/g" backend.tf
+    else
+      sed -i  "s/TF_ADMIN_BUCKET/$TF_ADMIN_BUCKET/g" backend.tf
+    fi
     terraform init
     terraform plan -out terraform.out
     terraform apply terraform.out
@@ -28,6 +34,12 @@ OPTIONAL_COMPONENTS=( logging )
 for component in "${OPTIONAL_COMPONENTS[@]}"; do
   echo "${component}"
   pushd "${component}"
+    cp backend.tf.example backend.tf
+    if [[ `uname -s` == 'Darwin' ]]; then
+      sed -i .tmp  "s/TF_ADMIN_BUCKET/$TF_ADMIN_BUCKET/g" backend.tf
+    else
+      sed -i  "s/TF_ADMIN_BUCKET/$TF_ADMIN_BUCKET/g" backend.tf
+    fi
     terraform init
     terraform plan -out terraform.out
     terraform apply terraform.out
