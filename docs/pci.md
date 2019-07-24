@@ -15,6 +15,8 @@
 | 1.3.6 Place system components that store cardholder data (such as a database) in an internal network zone, segregated from the DMZ and other untrusted networks. | PCI nodes are in their own subnet which is different from the public load balancer(s) |
 | 1.3.7 Do not disclose private IP addresses and routing information to unauthorized parties. | RFC 1918 address space is used for all PCI nodes |
 | **2. Do not use vendor-supplied defaults for system passwords and other security parameters** | |
+| 2.2.1  Implement only one primary function per server to prevent functions that require different security levels from co-existing on the same server. (For example, web servers, database servers, and DNS should be implemented on separate servers.) | There is 1 service per containers and containers are grouped in specific pods and clusters |
+| 2.2.2 Enable only necessary services,  protocols, daemons, etc., as required for the function of the system. | COS is being used at the node OS | 
 | **3. Protect stored cardholder data** | |
 | **4. Encrypt transmission of cardholder data across open, public networks** | |
 | **5. Use and regularly update anti-virus software or programs** | |
