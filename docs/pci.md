@@ -20,7 +20,7 @@
 | 2.2.3 Implement additional security features for any required services, protocols, or daemons that are considered to be insecure. | TLS is being used for all traffic in and out of the in-scope VPC |
 | 2.2.5  Remove all unnecessary functionality, such as scripts, drivers, features, subsystems, file systems, and unnecessary web servers. | COS is being used as the OS and the containers only container the necessary code and libraries for their service / function |
 | 2.3 Encrypt all non-console administrative access using strong cryptography. | TLS and SSH are being used |
-| 2.4 Maintain an inventory of system components that are in scope for PCI DSS. | This can be tracked with forseti or the Terraform templates | 
+| 2.4 Maintain an inventory of system components that are in scope for PCI DSS. | This can be tracked with Forseti or the Terraform templates | 
 | **3. Protect stored cardholder data** | |
 | **4. Encrypt transmission of cardholder data across open, public networks** | |
 | **5. Use and regularly update anti-virus software or programs** | |
