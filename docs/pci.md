@@ -1,5 +1,7 @@
 # PCI DSS Requirements
 
+## This PCI DSS Requirements table describes the requirements at are addressed by the PCI Terraform Starter project. It does not address all requirements, some are inherited from Google, while others would need to be implement. Free free to submit a PR for requirements we have not addressed
+
 | PCI DSS Requirements v3.2.1 | Description of Implementation |
 | -------------------------- | ------------------------------ |
 | **1. Install and maintain a firewall configuration to protect cardholder data** | |
@@ -29,8 +31,27 @@
 | **5. Use and regularly update anti-virus software or programs** | Not currently implemented in this project |
 | **6. Develop and maintain secure systems and applications** | |
 | **7. Restrict access to cardholder data by business need-to-know** | |
-| **8. Assign a unique ID to each person with computer access** | |
+| **8. Assign a unique ID to each person with computer access** | Not currently implemented in this project. Cloud Identity, IAM and RBAC can be used to meet requirement 8  |
 | **9. Restrict physical access to cardholder data** | Google is responsible for physical security controls on all Google data centers underlying GCP. |
 | **10. Track and monitor all access to network resources and cardholder data** | |
-| **11. Regularly test security systems and processes** | |
+| 10.1  Implement audit trails to link all access to system components to each individual user. | Audit logs and Stackdriver are being used |  
+| 10.2  Implement automated audit trails for all system components to reconstruct the following events: | Audit Logs |
+| 10.2.1 All individual user accesses to cardholder data. | Audit Logs |
+| 10.2.2 All actions taken by any individual with root or administrative privileges. | Audit Logs |
+| 10.2.3 Access to all audit trails. | Audit Logs |
+| 10.2.4 Invalid logical access attempts. | Audit Logs |
+| 10.3 Record at least the following audit trail entries for all system components for each event: | Audit Logs and Stackdriver |
+| 10.3.1 User identification. | Audit Logs and Stackdriver |
+| 10.3.2 Type of event. | Audit Logs and Stackdriver |
+| 10.3.3 Date and time. | Audit Logs and Stackdriver |
+| 10.3.4 Success or failure indication. | Audit Logs and Stackdriver |
+| 10.3.5 Origination of event. | Audit Logs and Stackdriver |
+| 10.3.6 Identity or name of affected data, system component, or resource. | Audit Logs and Stackdriver |
+| 10.4 Using time-synchronization technology, synchronize all critical system clocks and times and ensure that the following is implemented for acquiring, distributing, and storing time.| Google NTP servers are being used |
+| 10.4.1 Critical systems have the correct and consistent time. | Google NTP servers are being used |
+| 10.4.3 Time settings are received from industry-accepted time sources. | Google NTP servers are being used |
+| 10.5 Secure audit trails so they cannot be altered. | |
+| 10.5.1 Limit viewing of audit trails to those with a job-related need. | Logs are in their own project, which could be restricted |
+| 10.5.4 Write logs for external-facing technologies onto a secure, centralized, internal log server or media device. | Logs are in their own project and storage buckets |
+| **11. Regularly test security systems and processes** | N/A for this project |
 | **12. Maintain a policy that addresses information security for all personnel** | More information about requirement 12 can be found in the [GCP PCI Shared Responsibility Matrix](http://services.google.com/fh/files/misc/gcp_crm_2018.pdf) |
