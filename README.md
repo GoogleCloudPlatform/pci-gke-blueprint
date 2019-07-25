@@ -470,7 +470,7 @@ helm install \
   --kube-context in-scope \
   --name fluentd-filter-dlp \
   --namespace kube-system \
-  --set project_id=${MANAGEMENT_PROJECT_ID} \
+  --set project_id=${TF_VAR_project_prefix}-management \
   --set deidentify_template_name=${DEIDENTIFY_TEMPLATE_NAME} \
   --set fluentd_image_remote_repo=${FLUENTD_IMAGE_REMOTE_REPO} \
   ./fluentd-filter-dlp
