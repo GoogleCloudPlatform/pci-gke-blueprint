@@ -20,10 +20,13 @@
 | 2.2.3 Implement additional security features for any required services, protocols, or daemons that are considered to be insecure. | TLS is being used for all traffic in and out of the in-scope VPC |
 | 2.2.5  Remove all unnecessary functionality, such as scripts, drivers, features, subsystems, file systems, and unnecessary web servers. | COS is being used as the OS and the containers only container the necessary code and libraries for their service / function |
 | 2.3 Encrypt all non-console administrative access using strong cryptography. | TLS and SSH are being used |
-| 2.4 Maintain an inventory of system components that are in scope for PCI DSS. | This can be tracked with Forseti or the Terraform templates | 
+| 2.4 Maintain an inventory of system components that are in scope for PCI DSS. | This can be tracked with Forseti or the Terraform templates |
 | **3. Protect stored cardholder data** | |
+| 3.3 Mask PAN when displayed (the first six and last four digits are the maximum number of digits to be displayed), such that only personnel with a legitimate business need can see more than the first six/last four digits of the PAN. | Cloud DLP is used to redact the PAN in stackdriver logs |
+| 3.4 Render PAN unreadable anywhere it is stored (including on portable digital media, backup media, and in logs) by using any of the following approaches: One-way hashes based on strong cryptography, (hash must be of the entire PAN), Truncation (hashing cannot be used to replace the truncated segment of PAN), Index tokens and pads (pads must be securely stored), Strong cryptography with associated key-management processes and procedures. | Cloud DLP is used to redact the PAN in stackdriver logs |
 | **4. Encrypt transmission of cardholder data across open, public networks** | |
-| **5. Use and regularly update anti-virus software or programs** | |
+| 4.1 Use strong cryptography and security protocols to safeguard sensitive cardholder data during transmission over open, public networks, including the following: • Only trusted keys and certificates are accepted. • The protocol in use only supports secure versions or configurations. • The encryption strength is appropriate for the encryption methodology in use. | TLS with Frontend Load Balancers is being used |
+| **5. Use and regularly update anti-virus software or programs** | Not currently implemented in this project |
 | **6. Develop and maintain secure systems and applications** | |
 | **7. Restrict access to cardholder data by business need-to-know** | |
 | **8. Assign a unique ID to each person with computer access** | |
