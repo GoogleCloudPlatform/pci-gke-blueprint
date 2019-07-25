@@ -1,5 +1,7 @@
 # PCI DSS Requirements
 
+## This PCI DSS Requirements table describes the requirements at are addressed by the PCI Terraform Starter project. It does not address all requirements, some are inherited from Google, while others would need to be implement. Free free to submit a PR for requirements we have not addressed
+
 | PCI DSS Requirements v3.2.1 | Description of Implementation |
 | -------------------------- | ------------------------------ |
 | **1. Install and maintain a firewall configuration to protect cardholder data** | |
