@@ -30,7 +30,14 @@
 | 4.1 Use strong cryptography and security protocols to safeguard sensitive cardholder data during transmission over open, public networks, including the following: • Only trusted keys and certificates are accepted. • The protocol in use only supports secure versions or configurations. • The encryption strength is appropriate for the encryption methodology in use. | TLS with Frontend Load Balancers is being used |
 | **5. Use and regularly update anti-virus software or programs** | Not currently implemented in this project |
 | **6. Develop and maintain secure systems and applications** | |
-| **7. Restrict access to cardholder data by business need-to-know** | |
+|6.1 Establish a process to identify security vulnerabilities, using reputable outside sources for security vulnerability information,and assign a risk ranking (for example, as “high,” “medium,” or “low”) to newly discovered security vulnerabilities.|Cloud Security Scanner for GKE can be used|
+|6.2 Ensure that all system components and software are protected from known vulnerabilities by installing applicable vendor supplied security patches. Install critical security patches within one month of release.|COS is being used at the node OS. Node auto-upgrades is used to ensure nodes in the cluster are up to date with the cluster|
+|6.3 Develop internal and external software applications (including web-based administrative access to applications) securely, as follows: 
+• In accordance with PCI DSS (for example, secure authentication and logging) 
+• Based on industry standards and/or best practices. 
+• Incorporating information security throughout the software-development life cycle |Binary Authorization can be used to ensure that only trusted containers are deployed to GKE. Currently not implemented|
+|6.6 For public-facing web applications, address new threats and vulnerabilities on an ongoing basis and ensure these applications are protected against known attacks by either of the following methods: • Reviewing public-facing web applications via manual or automated application vulnerability security assessment tools or methods, at least annually and after any changes Note: This assessment is not the same as the vulnerability scans performed for Requirement 11.2. • Installing an automated technical solution that detects and prevents web based attacks (for example, a web application firewall) in front of public facing web applications, to continually check all traffic.|Cloud Armor can be be used to detect application level vulnerabilities. Currently not implemented|
+| **7. Restrict access to cardholder data by business need-to-know** |Cloud Identity, IAM and RBAC can be used to meet requirement 7 |
 | **8. Assign a unique ID to each person with computer access** | Not currently implemented in this project. Cloud Identity, IAM and RBAC can be used to meet requirement 8  |
 | **9. Restrict physical access to cardholder data** | Google is responsible for physical security controls on all Google data centers underlying GCP. |
 | **10. Track and monitor all access to network resources and cardholder data** | |
