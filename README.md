@@ -27,7 +27,7 @@ Here are the projects/services we make use of in this demo:
 
 
 ## Table of Contents
-* [TL;DR](#tl;dr)
+* [TL;DR](#tldr)
 * [Prerequisites](#prerequisites)
   * [Installation Dependencies](#installation-dependencies)
   * [GCP IAM Requirements](#gcp-iam-requirements)
