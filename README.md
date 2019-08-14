@@ -27,6 +27,7 @@ Here are the projects/services we make use of in this demo:
 
 
 ## Table of Contents
+* [TL;DR](#tl;dr)
 * [Prerequisites](#prerequisites)
   * [Installation Dependencies](#installation-dependencies)
   * [GCP IAM Requirements](#gcp-iam-requirements)
@@ -58,6 +59,18 @@ Here are the projects/services we make use of in this demo:
 * [Architecture](#architecture)
 * [Development](#development)
 * [Known Issues and Limitations](#known-issues-and-limitations)
+
+## TL;DR
+We recommend you read through the full README but if you just want to get started:
+1. Follow the steps in [Prerequisites](#prerequisites)
+1. Set-up the workstation.env file  [Workstation Configuration](#workstation-configuration)
+1. Execute the `build-infra.sh` script
+1. Execute the `build-app.sh` script
+1. Profit!
+
+`build-infra.sh` covers all the steps in [Project Creation](#project-creation) and [Setup Component Infrastructure](#setup-component-infrastructure)
+
+`build-app.sh` covers all the steps from [Prepare Application Deployment](#prepare-application-deployment) through [Application Deployment](#application-deployment)
 
 ## Prerequisites
 
