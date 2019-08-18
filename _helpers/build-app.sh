@@ -29,7 +29,7 @@ openssl x509 -req -days 365 -in hipsterservice.csr -signkey hipsterservice.key \
 
 echo 'Creating a Secret that holds your certificate and key'
 kubectl --context out-of-scope create secret tls tls-hipsterservice \
-  --cert hipsterservice.crt --key hipsterservice.key
+  --cert hipsterservice.crt --key hipsterservice.key --dry-run -o yaml | kubectl apply -f -
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
@@ -38,7 +38,7 @@ if [ $retVal -ne 0 ]; then
 fi
 
 kubectl --context in-scope create secret tls tls-hipsterservice \
-  --cert hipsterservice.crt --key hipsterservice.key
+  --cert hipsterservice.crt --key hipsterservice.key --dry-run -o yaml | kubectl apply -f -
 
 retVal=$?
 if [ $retVal -ne 0 ]; then
