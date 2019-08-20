@@ -17,7 +17,7 @@ terraform {
   required_version = "~> 0.11.13"
 
   backend "gcs" {
-    bucket = "BUCKET_PREFIX-terraform-admin"
+    bucket = "TF_ADMIN_BUCKET"
     prefix = "terraform/state/components/out-of-scope/infrastructure"
   }
 }
