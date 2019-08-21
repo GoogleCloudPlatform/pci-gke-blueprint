@@ -54,49 +54,49 @@ gcloud projects add-iam-policy-binding "${TF_ADMIN_PROJECT}" \
   --role roles/storage.admin
 
 # Add Storage Admin permissions to entire Folder
-gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
+gcloud resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/storage.admin
 
 # Add Container cluster admin permissions to entire Folder
-gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
+gcloud resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/container.admin
 
 # Add IAM serviceAccountUser permissions to entire Folder
-gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
+gcloud resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/iam.serviceAccountUser
 
 # Add Project Creator permissions to entire Folder
-gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
+gcloud resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/resourcemanager.projectCreator
 
 # Add Billing Project Manager permissions to all projects in Folder
-gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
+gcloud resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/billing.projectManager
 
 # Add Compute Admin permissions to all projects in Folder
-gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
+gcloud resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/compute.admin
 
 # Add Shared VPC Admin permissions to all projects in Folder
-gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
+gcloud resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/compute.xpnAdmin
 
 echo "=> Setting up IAM roles for StackDriver Logging"
 
-gcloud alpha resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
+gcloud resource-manager folders add-iam-policy-binding "${TF_VAR_folder_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/logging.configWriter
 
 echo ""
 echo "Service Account set up successfully"
 echo ""
-echo 'To continue setting up permissions for Forseti please run "helpers/forseti_admin_permissions.sh"'
+echo 'To continue setting up permissions for Forseti please run "./_helpers/forseti_admin_permissions.sh"'
 echo ""
 

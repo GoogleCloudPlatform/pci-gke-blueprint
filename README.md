@@ -361,39 +361,17 @@ utilizing it to mask sensitive cardholder data from StackDriver logs. See
 
 **Documentation**: [Creating Cloud DLP de-identification templates](https://cloud.google.com/dlp/docs/creating-templates-deid)
 
-A deidentification template needs to be created to pass to the DLP API filter
-configuration. There are multiple methods for creating the template. The method
-used here is the GCP documentation's API Explorer.
+A deidentification template needs to be created to pass to the DLP API filter configuration.  To create the template, run the following `curl` command:
 
-1. In a browser, navigate to https://cloud.google.com/dlp/docs/reference/rest/v2/projects.deidentifyTemplates/create
-1. In the sidebar, in the "Request parameters" section, in the `parent` field,
-enter `projects/<YOUR_INSCOPE_PROJECT>` eg. `projects/pci-poc-in-scope`
-1. In the request field, enter these values:
-  {
-    "deidentifyTemplate": {
-       "deidentifyConfig": {
-           "infoTypeTransformations": {
-             "transformations": [
-               {
-                 "infoTypes": [
-                   {
-                     "name": "CREDIT_CARD_NUMBER"
-                   }
-                 ],
-                 "primitiveTransformation": {
-                   "replaceWithInfoTypeConfig": {}
-                 }
-               }
-             ]
-           }
-         }
-       }
-     }
-1. Use the "EXECUTE" button to trigger the API call. You'll be prompted for
-authentication if needed.
-1. A valid API call will result in a table towards the bottom with a green header
-and the string "200". Copy the value of the `name` field to save it.
-1. In the `workstation.env` file, replace `TBD` from the line `export DEIDENTIFY_TEMPLATE_NAME=TBD` with this value.
+```
+curl -H "Content-Type: application/json; charset=utf-8" -H "Authorization: Bearer $(gcloud auth print-access-token)" -XPOST -d'{ "deidentifyTemplate": { "deidentifyConfig": { "infoTypeTransformations": { "transformations": [ { "infoTypes": [ { "name": "CREDIT_CARD_NUMBER" } ], "primitiveTransformation": { "replaceWithInfoTypeConfig": {} } } ] } } } }' "https://dlp.googleapis.com/v2/projects/${TF_VAR_project_prefix}-in-scope/deidentifyTemplates"
+```
+
+In the `workstation.env` file, replace `TBD` from the line `export DEIDENTIFY_TEMPLATE_NAME=TBD` with the full contents of the returned `name` value. For example:
+
+```
+export DEIDENTIFY_TEMPLATE_NAME="projects/${TF_VAR_project_prefix}-in-scope/deidentifyTemplates/NNNNNNNNNNNNNNNNNN"
+```
 
 #### Build the Custom `fluentd-gcp` Container
 

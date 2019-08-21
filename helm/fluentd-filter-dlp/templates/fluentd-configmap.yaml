@@ -16,7 +16,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: fluentd-config
-namespace: {{ .Release.Namespace }}
+  namespace: {{ .Release.Namespace }}
 data:
   containers.input.conf: |-
     # This configuration file for Fluentd is used
