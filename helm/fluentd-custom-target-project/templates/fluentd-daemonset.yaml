@@ -14,12 +14,12 @@
 
 apiVersion: extensions/v1beta1
 kind: DaemonSet
-namespace: {{ .Release.Namespace }}
 metadata:
   labels:
     k8s-app: fluentd-gcp
     version: v3.2.0
   name: fluentd-gcp-v3.2.0
+  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     matchLabels:

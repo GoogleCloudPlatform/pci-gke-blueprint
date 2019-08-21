@@ -32,7 +32,7 @@ echo "Continuing in 10 seconds. Ctrl+C to cancel"
 sleep 10
 
 echo "=> Creating project inside the folder ${TF_VAR_folder_id}"
-gcloud alpha projects create "${TF_ADMIN_PROJECT}" \
+gcloud projects create "${TF_ADMIN_PROJECT}" \
   --folder "${TF_VAR_folder_id}"
 
 echo "=> Linking ${TF_VAR_billing_account} Billing Account to your project"
@@ -46,6 +46,7 @@ gcloud --project "${TF_ADMIN_PROJECT}" services enable cloudbilling.googleapis.c
 gcloud --project "${TF_ADMIN_PROJECT}" services enable iam.googleapis.com
 gcloud --project "${TF_ADMIN_PROJECT}" services enable admin.googleapis.com
 gcloud --project "${TF_ADMIN_PROJECT}" services enable sqladmin.googleapis.com
+gcloud --project "${TF_ADMIN_PROJECT}" services enable dlp.googleapis.com
 
 echo "=> Creating Terraform state bucket"
 gsutil mb -p "${TF_ADMIN_PROJECT}" "gs://${TF_ADMIN_BUCKET}"
@@ -54,6 +55,6 @@ gsutil versioning set on "gs://${TF_ADMIN_BUCKET}"
 echo ""
 echo "Admin resources created successfully"
 echo ""
-echo 'To continue with setting up a Terraform Service Account please run "helpers/setup_service_account.sh"'
+echo 'To continue with setting up a Terraform Service Account please run "./_helpers/setup_service_account.sh"'
 echo ""
 
