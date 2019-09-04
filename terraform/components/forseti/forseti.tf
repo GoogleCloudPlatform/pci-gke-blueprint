@@ -36,7 +36,9 @@ data "terraform_remote_state" "project_management" {
    Forseti Module Install
   *****************************************/
 module "forseti-install" {
-  source             = "github.com/terraform-google-modules/terraform-google-forseti"
+  source  = "terraform-google-modules/forseti/google"
+  version = "~> 3.0"
+  
   gsuite_admin_email = ""
   project_id         = "${data.terraform_remote_state.project_management.project_id}"
   org_id             = ""
