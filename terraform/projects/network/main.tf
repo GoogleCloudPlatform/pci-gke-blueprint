@@ -16,13 +16,13 @@
 
 module "project_network" {
   source  = "terraform-google-modules/project-factory/google"
-  version = "2.1.1"
+  version = "~> 6.2.1"
 
-  name                        = "${local.project_network}"
-  org_id                      = "${var.org_id}"
-  domain                      = "${var.domain}"
-  billing_account             = "${var.billing_account}"
-  folder_id                   = "${local.folder_id}"
+  name                        = local.project_network
+  org_id                      = var.org_id
+  domain                      = var.domain
+  billing_account             = var.billing_account
+  folder_id                   = local.folder_id
   disable_services_on_destroy = "false"
 
   activate_apis = [
@@ -33,31 +33,34 @@ module "project_network" {
 
 module "vpc_pci" {
   source  = "terraform-google-modules/network/google"
-  version = "0.6.0"
+  version = "~> 2.0.1"
 
   shared_vpc_host = "true"
-  project_id      = "${module.project_network.project_id}"
+  project_id      = module.project_network.project_id
 
-  network_name = "${var.shared_vpc_name}"
+  network_name = var.shared_vpc_name
   routing_mode = "GLOBAL"
 
   subnets = [
     {
-      subnet_name   = "${local.mgmt_subnet_name}"
-      subnet_ip     = "${local.mgmt_subnet_cidr}"
-      subnet_region = "${var.region}"
+      subnet_name   = local.mgmt_subnet_name
+      subnet_ip     = local.mgmt_subnet_cidr
+      subnet_region = var.region
     },
     {
-      subnet_name           = "${local.in_scope_subnet_name}"
-      subnet_ip             = "${local.in_scope_subnet_cidr}"
-      subnet_region         = "${var.region}"
-      subnet_private_access = "true"
-      subnet_flow_logs      = "true"
+      subnet_name               = local.in_scope_subnet_name
+      subnet_ip                 = local.in_scope_subnet_cidr
+      subnet_region             = var.region
+      subnet_private_access     = "true"
+      subnet_flow_logs          = "true"
+      subnet_flow_logs_interval = "INTERVAL_10_MIN"
+      subnet_flow_logs_sampling = 0.7
+      subnet_flow_logs_metadata = "INCLUDE_ALL_METADATA"
     },
     {
-      subnet_name           = "${local.out_of_scope_subnet_name}"
-      subnet_ip             = "${local.out_of_scope_subnet_cidr}"
-      subnet_region         = "${var.region}"
+      subnet_name           = local.out_of_scope_subnet_name
+      subnet_ip             = local.out_of_scope_subnet_cidr
+      subnet_region         = var.region
       subnet_private_access = "true"
     },
   ]
@@ -67,22 +70,22 @@ module "vpc_pci" {
 
     out-of-scope = [
       {
-        range_name    = "${local.out_of_scope_pod_ip_range_name}"
+        range_name    = local.out_of_scope_pod_ip_range_name
         ip_cidr_range = "10.11.0.0/16"
       },
       {
-        range_name    = "${local.out_of_scope_services_ip_range_name}"
+        range_name    = local.out_of_scope_services_ip_range_name
         ip_cidr_range = "10.12.0.0/16"
       },
     ]
 
     in-scope = [
       {
-        range_name    = "${local.in_scope_pod_ip_range_name}"
+        range_name    = local.in_scope_pod_ip_range_name
         ip_cidr_range = "10.13.0.0/16"
       },
       {
-        range_name    = "${local.in_scope_services_ip_range_name}"
+        range_name    = local.in_scope_services_ip_range_name
         ip_cidr_range = "10.14.0.0/16"
       },
     ]
@@ -101,9 +104,9 @@ module "vpc_pci" {
 
 resource "google_compute_router" "router" {
   name    = "router"
-  project = "${module.project_network.project_id}"
-  region  = "${var.region}"
-  network = "${module.vpc_pci.network_self_link}"
+  project = module.project_network.project_id
+  region  = var.region
+  network = module.vpc_pci.network_self_link
 }
 
 resource "google_compute_router_nat" "nat" {
@@ -111,11 +114,11 @@ resource "google_compute_router_nat" "nat" {
 
   # Set an explicit dependency on VPC module.
   # This enforces the correct creation order for this NAT resource.
-  depends_on = ["module.vpc_pci"]
+  depends_on = [module.vpc_pci]
 
-  project                            = "${module.project_network.project_id}"
-  router                             = "${google_compute_router.router.name}"
-  region                             = "${var.region}"
+  project                            = module.project_network.project_id
+  router                             = google_compute_router.router.name
+  region                             = var.region
   nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
@@ -137,8 +140,8 @@ resource "google_compute_router_nat" "nat" {
 # remove these permissions.
 #
 resource "google_project_iam_custom_role" "firewall_admin" {
-  depends_on = ["module.vpc_pci"]
-  project    = "${local.project_network}"
+  depends_on = [module.vpc_pci]
+  project    = local.project_network
   role_id    = "firewall_admin"
   title      = "Firewall Admin"
 
@@ -158,17 +161,17 @@ output firewall_admin_role_id_custom_formatted {
 }
 
 output project_id {
-  value = "${module.project_network.project_id}"
+  value = module.project_network.project_id
 }
 
 output vpc_self_link {
-  value = "${module.vpc_pci.network_self_link}"
+  value = module.vpc_pci.network_self_link
 }
 
 output subnets_self_links {
-  value = "${module.vpc_pci.subnets_self_links}"
+  value = module.vpc_pci.subnets_self_links
 }
 
 output network_name {
-  value = "${module.vpc_pci.network_name}"
+  value = module.vpc_pci.network_name
 }

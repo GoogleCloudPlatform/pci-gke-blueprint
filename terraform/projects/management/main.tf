@@ -17,24 +17,24 @@
 data "terraform_remote_state" "project_network" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/network"
   }
 }
 
 module "project_management" {
   source  = "terraform-google-modules/project-factory/google"
-  version = "2.1.1"
+  version = "~> 6.2.1"
 
-  name   = "${local.project_management}"
-  org_id = "${var.org_id}"
+  name   = local.project_management
+  org_id = var.org_id
 
-  domain          = "${var.domain}"
-  billing_account = "${var.billing_account}"
-  folder_id       = "${local.folder_id}"
+  domain          = var.domain
+  billing_account = var.billing_account
+  folder_id       = local.folder_id
 
-  shared_vpc         = "${data.terraform_remote_state.project_network.project_id}"
+  shared_vpc         = data.terraform_remote_state.project_network.outputs.project_id
   shared_vpc_subnets = ["projects/${local.project_network}/regions/${var.region}/subnetworks/${local.mgmt_subnet_name}"]
 
   activate_apis = [
@@ -43,5 +43,5 @@ module "project_management" {
 }
 
 output project_id {
-  value = "${module.project_management.project_id}"
+  value = module.project_management.project_id
 }
