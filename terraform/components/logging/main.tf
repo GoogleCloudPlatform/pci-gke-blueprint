@@ -16,8 +16,8 @@
 data "terraform_remote_state" "project_management" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/management"
   }
 }
@@ -25,8 +25,8 @@ data "terraform_remote_state" "project_management" {
 data "terraform_remote_state" "project_in_scope" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/in-scope"
   }
 }
@@ -34,8 +34,8 @@ data "terraform_remote_state" "project_in_scope" {
 data "terraform_remote_state" "project_out_of_scope" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/out-of-scope"
   }
 }
@@ -43,8 +43,8 @@ data "terraform_remote_state" "project_out_of_scope" {
 data "terraform_remote_state" "project_network" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/network"
   }
 }
@@ -52,31 +52,31 @@ data "terraform_remote_state" "project_network" {
 data "terraform_remote_state" "forseti" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/components/forseti"
   }
 }
 
 module "folder-sink-destination" {
-  source                   = "github.com/terraform-google-modules/terraform-google-log-export//modules/storage?ref=v2.0.0"
-  project_id               = "${data.terraform_remote_state.project_management.project_id}"
+  source                   = "github.com/terraform-google-modules/terraform-google-log-export//modules/storage?ref=v3.2.0"
+  project_id               = data.terraform_remote_state.project_management.outputs.project_id
   storage_bucket_name      = "${var.project_prefix}-folder-audit-log-bucket"
-  log_sink_writer_identity = "${module.folder-log-export.writer_identity}"
+  log_sink_writer_identity = module.folder-log-export.writer_identity
 }
 
 module "in-scope-project-sink-destination" {
-  source                   = "github.com/terraform-google-modules/terraform-google-log-export//modules/storage?ref=v2.0.0"
-  project_id               = "${data.terraform_remote_state.project_management.project_id}"
+  source                   = "github.com/terraform-google-modules/terraform-google-log-export//modules/storage?ref=v3.2.0"
+  project_id               = data.terraform_remote_state.project_management.outputs.project_id
   storage_bucket_name      = "${var.project_prefix}-in-scope-project-log-bucket"
-  log_sink_writer_identity = "${module.in-scope-project-log-export.writer_identity}"
+  log_sink_writer_identity = module.in-scope-project-log-export.writer_identity
 }
 
 module "network-project-sink-destination" {
-  source                   = "github.com/terraform-google-modules/terraform-google-log-export//modules/storage?ref=v2.0.0"
-  project_id               = "${data.terraform_remote_state.project_management.project_id}"
+  source                   = "github.com/terraform-google-modules/terraform-google-log-export//modules/storage?ref=v3.2.0"
+  project_id               = data.terraform_remote_state.project_management.outputs.project_id
   storage_bucket_name      = "${var.project_prefix}-network-project-log-bucket"
-  log_sink_writer_identity = "${module.network-project-log-export.writer_identity}"
+  log_sink_writer_identity = module.network-project-log-export.writer_identity
 }
 
 #
@@ -84,11 +84,11 @@ module "network-project-sink-destination" {
 # the Folder level
 #
 module "folder-log-export" {
-  source                 = "github.com/terraform-google-modules/terraform-google-log-export?ref=v2.0.0"
-  destination_uri        = "${module.folder-sink-destination.destination_uri}"
+  source                 = "github.com/terraform-google-modules/terraform-google-log-export?ref=v3.2.0"
+  destination_uri        = module.folder-sink-destination.destination_uri
   filter                 = "logName:cloudaudit.googleapis.com AND severity >= WARNING"
   log_sink_name          = "folder-audit-log-sink"
-  parent_resource_id     = "${var.folder_id}"
+  parent_resource_id     = var.folder_id
   parent_resource_type   = "folder"
   unique_writer_identity = "true"
   include_children       = "true"
@@ -104,11 +104,11 @@ module "folder-log-export" {
 # Folder-level sink
 #
 module "in-scope-project-log-export" {
-  source                 = "github.com/terraform-google-modules/terraform-google-log-export?ref=v2.0.0"
-  destination_uri        = "${module.in-scope-project-sink-destination.destination_uri}"
+  source                 = "github.com/terraform-google-modules/terraform-google-log-export?ref=v3.2.0"
+  destination_uri        = module.in-scope-project-sink-destination.destination_uri
   filter                 = "resource.type=gce_instance"
   log_sink_name          = "in-scope-project-log-sink"
-  parent_resource_id     = "${data.terraform_remote_state.project_in_scope.project_id}"
+  parent_resource_id     = data.terraform_remote_state.project_in_scope.outputs.project_id
   parent_resource_type   = "project"
   unique_writer_identity = "true"
 }
@@ -122,11 +122,11 @@ module "in-scope-project-log-export" {
 # - VPC Flow logs for in-scope subnet
 #
 module "network-project-log-export" {
-  source                 = "github.com/terraform-google-modules/terraform-google-log-export?ref=v2.0.0"
-  destination_uri        = "${module.network-project-sink-destination.destination_uri}"
+  source                 = "github.com/terraform-google-modules/terraform-google-log-export?ref=v3.2.0"
+  destination_uri        = module.network-project-sink-destination.destination_uri
   filter                 = "resource.type=gce_subnetwork AND resource.labels.subnetwork_name=in-scope AND logName:vpc_flows"
   log_sink_name          = "network-project-log-sink"
-  parent_resource_id     = "${data.terraform_remote_state.project_network.project_id}"
+  parent_resource_id     = data.terraform_remote_state.project_network.outputs.project_id
   parent_resource_type   = "project"
   unique_writer_identity = "true"
 }
@@ -139,10 +139,10 @@ module "network-project-log-export" {
 # for GKE instance nodes to log messages to Stackdriver
 resource "google_project_iam_binding" "in-and-out-scope-sd-log_writer" {
   role    = "roles/logging.logWriter"
-  project = "${data.terraform_remote_state.project_management.project_id}"
+  project = data.terraform_remote_state.project_management.outputs.project_id
 
   members = [
-    "serviceAccount:${data.terraform_remote_state.project_in_scope.service_account_email}",
-    "serviceAccount:${data.terraform_remote_state.project_out_of_scope.service_account_email}",
+    "serviceAccount:${data.terraform_remote_state.project_in_scope.outputs.service_account_email}",
+    "serviceAccount:${data.terraform_remote_state.project_out_of_scope.outputs.service_account_email}",
   ]
 }

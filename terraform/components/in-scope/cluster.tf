@@ -17,8 +17,8 @@
 data "terraform_remote_state" "project_in_scope" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/in-scope"
   }
 }
@@ -26,24 +26,25 @@ data "terraform_remote_state" "project_in_scope" {
 data "terraform_remote_state" "project_network" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/network"
   }
 }
 
 resource "google_container_cluster" "primary" {
-  name               = "${local.in_scope_cluster_name}"
-  min_master_version = "${local.gke_minimum_version}"
+  name               = local.in_scope_cluster_name
+  min_master_version = local.gke_minimum_version
   location           = "us-central1-a"
   node_locations     = ["us-central1-b"]
-  network            = "${data.terraform_remote_state.project_network.vpc_self_link}"
-  subnetwork         = "projects/${data.terraform_remote_state.project_network.project_id}/regions/${var.region}/subnetworks/${local.in_scope_subnet_name}"
-  project            = "${data.terraform_remote_state.project_in_scope.project_id}"
+  network            = data.terraform_remote_state.project_network.outputs.vpc_self_link
+  subnetwork         = "projects/${data.terraform_remote_state.project_network.outputs.project_id}/regions/${var.region}/subnetworks/${local.in_scope_subnet_name}"
+  project            = data.terraform_remote_state.project_in_scope.outputs.project_id
 
   # We use a custom fluentd DaemonSet to manage logging. We do this so we can
   # configure filter rules to mask sensitive data.
-  logging_service = "none"
+  logging_service    = "none"
+  monitoring_service = "monitoring.googleapis.com"
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
@@ -55,7 +56,7 @@ resource "google_container_cluster" "primary" {
   # Required for initial cluster setup. Avoids setting the node service
   # account to the incorrect default service account.
   node_config {
-    service_account = "${data.terraform_remote_state.project_in_scope.service_account_email}"
+    service_account = data.terraform_remote_state.project_in_scope.outputs.service_account_email
     preemptible     = true
     tags            = ["in-scope"]
   }
@@ -71,15 +72,15 @@ resource "google_container_cluster" "primary" {
   }
 
   ip_allocation_policy {
-    use_ip_aliases                = true
-    cluster_secondary_range_name  = "${local.in_scope_pod_ip_range_name}"
-    services_secondary_range_name = "${local.in_scope_services_ip_range_name}"
+    cluster_secondary_range_name  = local.in_scope_pod_ip_range_name
+    services_secondary_range_name = local.in_scope_services_ip_range_name
   }
 
   private_cluster_config {
     # In a private cluster, nodes do not have public IP addresses, and the master
     # is inaccessible by default.
-    enable_private_nodes = true
+    enable_private_nodes    = true
+    enable_private_endpoint = false
 
     # "Master IP range" is a private RFC 1918 reange for the master's VPC. The
     # master range must not overlap with any subnet in your cluster's VPC. The
@@ -101,8 +102,8 @@ resource "google_container_cluster" "primary" {
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name               = "${local.in_scope_cluster_name}-node-pool"
-  depends_on         = ["google_container_cluster.primary"]
-  version            = "${local.gke_minimum_version}"
+  depends_on         = [google_container_cluster.primary]
+  version            = local.gke_minimum_version
   location           = "us-central1-a"
   initial_node_count = 2
 
@@ -116,13 +117,13 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
     auto_upgrade = true
   }
 
-  cluster = "${google_container_cluster.primary.name}"
-  project = "${data.terraform_remote_state.project_in_scope.project_id}"
+  cluster = google_container_cluster.primary.name
+  project = data.terraform_remote_state.project_in_scope.outputs.project_id
 
   node_config {
     preemptible     = true
     machine_type    = "n1-standard-1"
-    service_account = "${data.terraform_remote_state.project_in_scope.service_account_email}"
+    service_account = data.terraform_remote_state.project_in_scope.outputs.service_account_email
 
     tags = ["in-scope"]
 

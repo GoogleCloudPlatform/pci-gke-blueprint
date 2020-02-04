@@ -17,8 +17,8 @@
 data "terraform_remote_state" "network" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/network"
   }
 }
@@ -26,8 +26,8 @@ data "terraform_remote_state" "network" {
 data "terraform_remote_state" "project_management" {
   backend = "gcs"
 
-  config {
-    bucket = "${var.remote_state_bucket}"
+  config = {
+    bucket = var.remote_state_bucket
     prefix = "terraform/state/management"
   }
 }
@@ -37,23 +37,19 @@ data "terraform_remote_state" "project_management" {
   *****************************************/
 module "forseti-install" {
   source  = "terraform-google-modules/forseti/google"
-  version = "~> 3.0"
-  
+  version = "~> 5.1"
+
   gsuite_admin_email = ""
-  project_id         = "${data.terraform_remote_state.project_management.project_id}"
+  project_id         = data.terraform_remote_state.project_management.outputs.project_id
   org_id             = ""
-  folder_id          = "${var.folder_id}"
-  domain             = "${var.domain}"
-  network            = "${data.terraform_remote_state.network.network_name}"
-  network_project    = "${data.terraform_remote_state.network.project_id}"
-  subnetwork         = "${local.mgmt_subnet_name}"
+  folder_id          = var.folder_id
+  domain             = var.domain
+  network            = data.terraform_remote_state.network.outputs.network_name
+  network_project    = data.terraform_remote_state.network.outputs.project_id
+  subnetwork         = local.mgmt_subnet_name
 
-  cscc_source_id          = "${local.forseti_cscc_source_id}"
-  cscc_violations_enabled = "${local.forseti_cscc_violations_enabled}"
+  cscc_source_id          = local.forseti_cscc_source_id
+  cscc_violations_enabled = local.forseti_cscc_violations_enabled
 
-  # Bug in the forseti module variable interpolation. The value must be
-  # hardcoded, otherwise the error
-  # `Error: # module.forseti-install.module.server.google_compute_firewall.forseti-server-allow-grpc: source_ranges: should be a list`
-  # is thrown.
-  server_grpc_allow_ranges = ["10.10.1.0/24"]
+  server_grpc_allow_ranges = [local.mgmt_subnet_cidr]
 }

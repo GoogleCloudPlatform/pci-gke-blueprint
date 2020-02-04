@@ -12,14 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Provider versions set to ~> 2.12 -- the maximum version for the `logging` component.
+# TODO: Update the Providers to their latest versions as soon as the
+# `terraform-google-log-export` module supports a version >= 3.0
 provider "google" {
-  version = "~> 2.1"
-  region  = "${var.region}"
+  version = "~> 2.12"
+  region  = var.region
 }
 
 provider "google-beta" {
-  version = "~> 2.1"
-  region  = "${var.region}"
+  version = "~> 2.12"
+  region  = var.region
 }
 
 variable "billing_account" {
@@ -62,8 +65,8 @@ variable "remote_state_bucket" {
 }
 
 locals {
-  folder_id               = "${ var.folder_id != "" ? var.folder_id : "" }"
-  gke_minimum_version     = "1.12.7-gke.25"
+  folder_id               = "${var.folder_id != "" ? var.folder_id : ""}"
+  gke_minimum_version     = "1.14.8-gke.12"
   self_link_subnet_prefix = "projects/${local.project_network}/regions/${var.region}/subnetworks/"
 
   in_scope_cluster_name           = "in-scope"
