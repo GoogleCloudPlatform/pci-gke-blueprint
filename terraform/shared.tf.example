@@ -66,7 +66,7 @@ variable "remote_state_bucket" {
 
 locals {
   folder_id               = "${var.folder_id != "" ? var.folder_id : ""}"
-  gke_minimum_version     = "1.14.8-gke.12"
+  gke_minimum_version     = "1.14.10-gke.27"
   self_link_subnet_prefix = "projects/${local.project_network}/regions/${var.region}/subnetworks/"
 
   in_scope_cluster_name           = "in-scope"
