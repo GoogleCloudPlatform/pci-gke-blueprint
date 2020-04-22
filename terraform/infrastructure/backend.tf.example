@@ -1,0 +1,6 @@
+terraform {
+  backend "gcs" {
+    bucket = "<SET TO THE VALUE OF TF_ADMIN_BUCKET>"
+    prefix = "terraform/state/pci-infrastructure"
+  }
+}

@@ -1,4 +1,18 @@
-#/usr/bin/env bash -ax
+#!/usr/bin/env bash
+
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 # Set up the admin resources run
 echo 'Setting up the Terraform Admin Project'
@@ -12,43 +26,32 @@ source ./workstation.env
 # Create the Terraform service account
 ./_helpers/setup_service_account.sh
 
-# Add Forseti-specific permissions to the service account
-./_helpers/forseti_admin_permissions.sh
-
-# create the component projects
-echo 'Creating the component projects'
-
-cp terraform/shared.tf.example terraform/shared.tf.local
-pushd terraform/projects/
-./build.sh
+# run terraform
+sed "s/<SET TO THE VALUE OF TF_ADMIN_BUCKET>/${TF_ADMIN_BUCKET}/" terraform/infrastructure/backend.tf.example > terraform/infrastructure/backend.tf
+pushd terraform/infrastructure
+terraform init
+terraform plan -out terraform.out
+terraform apply terraform.out
 popd
 
-echo "Verifying that 4 projects have been created."
-gcloud projects list --filter="parent.id=${TF_VAR_folder_id}" | grep ${TF_VAR_project_prefix}
+# DNS
+echo "Update your DNS settings such that"
+echo "dig NS <frontend_zone_dns_name> from the terraform output"
+echo "equals the <nameservers> from the terraform output"
 
-# test to make sure the correct number of projects were created
-if [ `gcloud projects list --filter="parent.id=${TF_VAR_folder_id}" | grep ${TF_VAR_project_prefix} | wc -l` -ne 4 ] ; then
-  echo 'Something went wrong there should be 4 projects listed'
-  exit 1
-fi
+#Example:
+# from the output of  "terraform apply":
+# frontend_zone_dns_name = a.example.com
+# nameservers = [
+#   "ns-cloud-d1.googledomains.com.",
+#   "ns-cloud-d2.googledomains.com.",
+#   "ns-cloud-d3.googledomains.com.",
+#   "ns-cloud-d4.googledomains.com.",
+# ]
+# $ dig +noall +answer  NS a.example.com
+# a.gcpsecurity.solutions. 3600	IN	NS	ns-cloud-d4.googledomains.com.
+# a.gcpsecurity.solutions. 3600	IN	NS	ns-cloud-d2.googledomains.com.
+# a.gcpsecurity.solutions. 3600	IN	NS	ns-cloud-d3.googledomains.com.
+# a.gcpsecurity.solutions. 3600	IN	NS	ns-cloud-d1.googledomains.com.
 
-# setup component infra
-echo 'Setting up the component infrastructure'
-
-pushd terraform/components
-./build.sh
-popd
-
-echo "Verifying that in-scope and out-of-scope clusters have been created."
-gcloud beta container clusters list --project=${TF_VAR_project_prefix}-in-scope
-gcloud beta container clusters list --project=${TF_VAR_project_prefix}-out-of-scope
-
-if [ `gcloud beta container clusters list --project=${TF_VAR_project_prefix}-out-of-scope | grep scope | wc -l` -ne 1 ] ; then
-  echo 'Something went wrong the out-of-scope cluster was not created'
-  exit 1
-fi
-
-if [ `gcloud beta container clusters list --project=${TF_VAR_project_prefix}-in-scope | grep scope | wc -l` -ne 1 ] ; then
-  echo 'Something went wrong the in-scope cluster was not created'
-  exit 1
-fi
+echo "continue with deploy-app.sh"

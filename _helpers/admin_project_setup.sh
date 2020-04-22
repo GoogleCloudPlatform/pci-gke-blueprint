@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2019 Google LLC
+# Copyright 2020 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ echo "Organization: ${TF_VAR_org_id:?}"
 echo "Billing Account: ${TF_VAR_billing_account:?}"
 echo "Folder: ${TF_VAR_folder_id:?}"
 echo "State Bucket: ${TF_ADMIN_BUCKET:?}"
-echo "Credentials Path: ${TF_CREDS:?}"
 echo "==================================================="
 echo ""
 echo "Continuing in 10 seconds. Ctrl+C to cancel"
@@ -57,4 +56,3 @@ echo "Admin resources created successfully"
 echo ""
 echo 'To continue with setting up a Terraform Service Account please run "./_helpers/setup_service_account.sh"'
 echo ""
-

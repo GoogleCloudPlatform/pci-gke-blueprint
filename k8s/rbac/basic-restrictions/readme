@@ -1,0 +1,1 @@
+# These configurations are based on recommendations from https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#restrict_cluster_discovery_rbac_permissions

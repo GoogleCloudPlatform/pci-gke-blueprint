@@ -1,0 +1,7 @@
+apiVersion: cloud.google.com/v1beta1
+kind: BackendConfig
+metadata:
+  name: security-policy-mapping
+spec:
+  securityPolicy:
+    name: "{{ required "frontend_security_policy is required" .Values.frontend_security_policy }}"
