@@ -15,7 +15,7 @@ Here are the projects/services we make use of in this Blueprint:
 - Istio
 - Cloud Armor
 - Google-managed SSL Certificates
-- GoogleCloudPlatform/microservices-demo
+- [GoogleCloudPlatform/microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo)
 
 
 
