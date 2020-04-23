@@ -2,10 +2,11 @@
 
 ![high level project view](docs/diagrams/highlevel_project_view.png)
 
-This repository contains a set of Terraform configurations and scripts to help
-demonstrate how to bootstrap a PCI environment in GCP. When appropriate, we
-also showcase GCP services, tools, or projects we think might be useful to
-start your own GCP PCI environment or as samples for any other purposes.
+This is the companion repository to the [PCI on GKE Security Blueprint](https://cloud.google.com/architecture/blueprints/gke-pci-dss-blueprint) for the Google Cloud Platform. It
+contains a set of Terraform configurations and scripts to help demonstrate how
+to bootstrap a PCI environment in GCP. When appropriate, we also showcase GCP
+services, tools, or projects we think might be useful to start your own GCP PCI
+environment or as samples for any other purposes.
 
 Here are the projects/services we make use of in this Blueprint:
 
