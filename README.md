@@ -107,7 +107,7 @@ stepwise instructions for that script in [Building the Infrastructure](docs/buil
 
 - If your GCP Organization is shared between other users or teams, consult your
   Organization Admins before building the Blueprint.
-- This Blueprint does not implement a multi-envionment setup. There is no
+- This Blueprint does not implement a multi-environment setup. There is no
   "pre-prod", "staging", or "production" differentiation. However, there is no
   reason that this Blueprint couldn't be expanded to accommodate such a setup if you
   so choose.
