@@ -74,25 +74,29 @@ spec:
     spec:
       containers:
         - name: server
-          image: gcr.io/google-samples/microservices-demo/frontend:v0.1.4
+          image: {{ required "frontend_image is required" .Values.frontend_image}}
           ports:
-          - containerPort: 8080
+          - containerPort: 80
           readinessProbe:
             initialDelaySeconds: 10
             httpGet:
               path: "/_healthz"
-              port: 8080
+              port: 80
               httpHeaders:
               - name: "Cookie"
                 value: "shop_session-id=x-readiness-probe"
+              - name: "X-Forwarded-Proto"
+                value: "https"
           livenessProbe:
             initialDelaySeconds: 10
             httpGet:
               path: "/_healthz"
-              port: 8080
+              port: 80
               httpHeaders:
               - name: "Cookie"
                 value: "shop_session-id=x-liveness-probe"
+              - name: "X-Forwarded-Proto"
+                value: "https"
           env:
           - name: PRODUCT_CATALOG_SERVICE_ADDR
             value: "productcatalogservice.out-of-scope.global:3550"

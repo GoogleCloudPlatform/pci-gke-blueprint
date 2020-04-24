@@ -144,4 +144,5 @@ kubectl --context in-scope describe ingresses
 # After ~3 minutes, The application should be accessible at $DOMAIN_NAME
 
 curl -s -o /dev/null -I -w "%{http_code}" https://$DOMAIN_NAME # output should be 200
-curl -s http://$DOMAIN_NAME | grep -q "One-stop for Hipster Fashion" ; echo $? # output should be 0
+curl -s https://$DOMAIN_NAME | grep -q "One-stop for Hipster Fashion" ; echo $? # output should be 0
+curl -Is http://$DOMAIN_NAME | head -1 # output should be "HTTP/1.1 301 Moved Permanently"

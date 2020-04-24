@@ -115,6 +115,9 @@ stepwise instructions for that script in [Building the Infrastructure](docs/buil
   point to build a security-focused environment focused on PCI compliance. This
   Blueprint has been reviewed by [Coalfire](https://cloud.google.com/architecture/blueprints/google-cloud-pci-gke-review.pdf) but deploying an application into
   this environment does not qualify as being PCI-DSS compliant.
+- As currently designed, `http://` requests are redirected to `https://` via HTTP
+  header inspection by the frontend microservice. More details in [HTTP to HTTPS
+  redirection](docs/https-redirection.md)
 
 ## Helpful Links
 
