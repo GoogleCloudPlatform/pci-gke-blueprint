@@ -43,6 +43,4 @@ steps:
   - '-c'
   - |
       source workstation.env.example
-      echo "project network: $TF_VAR_project_network"
-      echo "Google appl creds: $GOOGLE_APPLICATION_CREDENTIALS"
       ./_helpers/build-infra.sh
