@@ -13,37 +13,36 @@
 # limitations under the License.
 
 substitutions:
-    _GOOGLE_GROUPS_DOMAIN: ''
-    _TF_ADMIN_BUCKET: ''
-    _TF_ADMIN_PROJECT: ''
-    _TF_VAR_BILLING_ACCOUNT: ''
-    _TF_VAR_FOLDER_ID: ''
-    _TF_VAR_FRONTEND_ZONE_DNS_NAME: ''
-    _TF_VAR_GSUITE_ID: ''
-    _TF_VAR_ORG_ID: ''
-    _TF_VAR_PROJECT_PREFIX: ''
+  _GOOGLE_GROUPS_DOMAIN: ''
+  _TF_ADMIN_BUCKET: ''
+  _TF_ADMIN_PROJECT: ''
+  _TF_VAR_BILLING_ACCOUNT: ''
+  _TF_VAR_FOLDER_ID: ''
+  _TF_VAR_FRONTEND_ZONE_DNS_NAME: ''
+  _TF_VAR_GSUITE_ID: ''
+  _TF_VAR_ORG_ID: ''
+  _TF_VAR_PROJECT_PREFIX: ''
   
-  timeout: 3000s
-  steps:
-  - id: 'Build Infra'
-    name: 'gcr.io/cloud-foundation-cicd/cft/developer-tools:0'
-    waitFor: ['-']
-    entrypoint: 'sh'
-    env:
-    - GOOGLE_GROUPS_DOMAIN=${_GOOGLE_GROUPS_DOMAIN}
-    - TF_ADMIN_BUCKET=${_TF_ADMIN_BUCKET}
-    - TF_ADMIN_PROJECT=${_TF_ADMIN_PROJECT}
-    - TF_VAR_billing_account=${_TF_VAR_BILLING_ACCOUNT}
-    - TF_VAR_folder_id=${_TF_VAR_FOLDER_ID}
-    - TF_VAR_frontend_zone_dns_name=${_TF_VAR_FRONTEND_ZONE_DNS_NAME}
-    - TF_VAR_gsuite_id=${_TF_VAR_GSUITE_ID}
-    - TF_VAR_org_id=${_TF_VAR_ORG_ID}
-    - TF_VAR_project_prefix=${_TF_VAR_PROJECT_PREFIX}
-    args: 
-    - '-c'
-    - |
-        source workstation.env.example
-        echo "project network: $TF_VAR_project_network"
-        echo "Google appl creds: $GOOGLE_APPLICATION_CREDENTIALS"
-        ./_helpers/build-infra.sh
-  
+timeout: 3000s
+steps:
+- id: 'Build Infra'
+  name: 'gcr.io/cloud-foundation-cicd/cft/developer-tools:0'
+  waitFor: ['-']
+  entrypoint: 'sh'
+  env:
+  - GOOGLE_GROUPS_DOMAIN=${_GOOGLE_GROUPS_DOMAIN}
+  - TF_ADMIN_BUCKET=${_TF_ADMIN_BUCKET}
+  - TF_ADMIN_PROJECT=${_TF_ADMIN_PROJECT}
+  - TF_VAR_billing_account=${_TF_VAR_BILLING_ACCOUNT}
+  - TF_VAR_folder_id=${_TF_VAR_FOLDER_ID}
+  - TF_VAR_frontend_zone_dns_name=${_TF_VAR_FRONTEND_ZONE_DNS_NAME}
+  - TF_VAR_gsuite_id=${_TF_VAR_GSUITE_ID}
+  - TF_VAR_org_id=${_TF_VAR_ORG_ID}
+  - TF_VAR_project_prefix=${_TF_VAR_PROJECT_PREFIX}
+  args: 
+  - '-c'
+  - |
+      source workstation.env.example
+      echo "project network: $TF_VAR_project_network"
+      echo "Google appl creds: $GOOGLE_APPLICATION_CREDENTIALS"
+      ./_helpers/build-infra.sh
