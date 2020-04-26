@@ -58,7 +58,6 @@ steps:
       sed -i '/GOOGLE_APPLICATION_CREDENTIALS/d' workstation.env
       cat workstation.env
       source workstation.env
-      gcloud auth list
       ./_helpers/build-infra.sh cicd
 
 - id: 'Run PCI Profile on in-scope project'
@@ -69,7 +68,7 @@ steps:
     - '-c'
     - |
       inspec exec /share/. -t gcp:// \
-      --input gcp_project_id=${TF_VAR_project_prefix}-in-scope \
+      --input-file /share/attributes.yml \
       --reporter cli json:/workspace/pci_report.json html:/workspace/pci_report.html | tee out.json
 
 - id: 'Store json Report'
