@@ -13,11 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+cloud_build_service_account=$1
 
 # Fail fast when a command fails or a variable is undefined
 set -eu
-
-cloud_build_service_account=$1
 
 echo ""
 echo "Preparing to execute with the following values:"
@@ -27,7 +26,6 @@ echo "Organization: ${TF_VAR_org_id:?}"
 echo "Billing Account: ${TF_VAR_billing_account:?}"
 echo "Folder: ${TF_VAR_folder_id:?}"
 echo "State Bucket: ${TF_ADMIN_BUCKET:?}"
-echo "Credentials Path: ${GOOGLE_APPLICATION_CREDENTIALS:?}"
 echo "==================================================="
 echo ""
 echo "Continuing in 10 seconds. Ctrl+C to cancel"
