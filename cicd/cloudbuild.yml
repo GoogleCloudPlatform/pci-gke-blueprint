@@ -22,6 +22,7 @@ substitutions:
   _TF_VAR_GSUITE_ID: ''
   _TF_VAR_ORG_ID: ''
   _TF_VAR_PROJECT_PREFIX: ''
+  _GOOGLE_APPLICATION_CREDENTIALS: ''
   
 timeout: 3000s
 steps:
@@ -50,6 +51,7 @@ steps:
       sed -i "s/demo-pci/${_TF_VAR_PROJECT_PREFIX}/g" workstation.env
       sed -i "/export TF_ADMIN_PROJECT/c\export TF_ADMIN_PROJECT=${_TF_ADMIN_PROJECT}" workstation.env
       sed -i "s/terraform-admin-<INSERT-RANDOM-IDENTIFIER-HERE>/${_TF_ADMIN_BUCKET}/g" workstation.env
+      sed -i "/GOOGLE_APPLICATION_CREDENTIALS=/c\export GOOGLE_APPLICATION_CREDENTIALS=${_GOOGLE_APPLICATION_CREDENTIALS}" workstation.env
       sed -i "/TF_VAR_frontend_zone_dns_name=/c\export TF_VAR_frontend_zone_dns_name=\"${_TF_VAR_FRONTEND_ZONE_DNS_NAME}\"" workstation.env
       sed -i "/GOOGLE_GROUPS_DOMAIN=/c\GOOGLE_GROUPS_DOMAIN=\"${_GOOGLE_GROUPS_DOMAIN}\"" workstation.env
       cat workstation.env
