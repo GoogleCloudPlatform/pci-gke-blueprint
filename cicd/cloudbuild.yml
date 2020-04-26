@@ -58,12 +58,12 @@ steps:
       source workstation.env
 
       echo "This might fail..."
-      gcloud projects create "${TF_ADMIN_PROJECT}" \
-        --folder "${TF_VAR_folder_id}"
+      gcloud projects create "${_TF_ADMIN_PROJECT}" \
+        --folder "${_TF_VAR_FOLDER_ID}"
 
       echo "Trying again..."
-      gcloud projects create "${TF_ADMIN_PROJECT}" \
-      --folder "${TF_VAR_folder_id}" --impersonate-service-account
+      gcloud projects create "${_TF_ADMIN_PROJECT}" \
+      --folder "${_TF_VAR_FOLDER_ID}" --impersonate-service-account
 
       gcloud auth list
       ./_helpers/build-infra.sh
