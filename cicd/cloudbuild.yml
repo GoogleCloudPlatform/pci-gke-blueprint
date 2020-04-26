@@ -61,7 +61,7 @@ steps:
       gcloud auth list
       ./_helpers/build-infra.sh cicd
 
-- id: 'Run PCI Profile'
+- id: 'Run PCI Profile on in-scope project'
   waitFor: ['Build Infra']
   name: gcr.io/${_GCR_PROJECT_ID}/inspec-gcp-pci-profile:v3.2.1-2
   entrypoint: '/bin/sh'
@@ -69,7 +69,7 @@ steps:
     - '-c'
     - |
       inspec exec /share/. -t gcp:// \
-      --input gcp_project_id=${_GCR_PROJECT_ID} \
+      --input gcp_project_id=${TF_VAR_project_prefix}-in-scope \
       --reporter cli json:/workspace/pci_report.json html:/workspace/pci_report.html | tee out.json
 
 - id: 'Store json Report'
