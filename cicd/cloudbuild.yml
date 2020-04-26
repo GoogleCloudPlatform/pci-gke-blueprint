@@ -22,6 +22,9 @@ substitutions:
   _TF_VAR_GSUITE_ID: ''
   _TF_VAR_ORG_ID: ''
   _TF_VAR_PROJECT_PREFIX: ''
+  _GCR_PROJECT_ID: ''
+  _REPORTS_BUCKET: ''
+
   
 timeout: 3000s
 steps:
@@ -57,3 +60,30 @@ steps:
       source workstation.env
       gcloud auth list
       ./_helpers/build-infra.sh cicd
+
+- id: 'Run PCI Profile'
+  waitFor: ['Build Infra']
+  name: gcr.io/${_GCR_PROJECT_ID}/inspec-gcp-pci-profile:v3.2.1-2
+  entrypoint: '/bin/sh'
+  args: 
+    - '-c'
+    - |
+      inspec exec /share/. -t gcp:// \
+      --input gcp_project_id=${_GCR_PROJECT_ID} \
+      --reporter cli json:/workspace/pci_report.json html:/workspace/pci_report.html | tee out.json
+
+- id: 'Store json Report'
+  waitFor: ['Run PCI Profile']
+  name: gcr.io/cloud-builders/gsutil
+  args:
+    - cp
+    - /workspace/pci_report.json
+    - gs://${_REPORTS_BUCKET}/pci_report-${BUILD_ID}.json
+
+- id: 'Store Report'
+  waitFor: ['Run PCI Profile']
+  name: gcr.io/cloud-builders/gsutil
+  args:
+    - cp
+    - /workspace/pci_report.html
+    - gs://${_REPORTS_BUCKET}/pci_report-${BUILD_ID}.html
