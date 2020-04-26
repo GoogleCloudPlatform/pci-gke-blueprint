@@ -26,11 +26,11 @@ source ./workstation.env
 ./_helpers/admin_project_setup.sh
 
 if [ "$run_type" = "cicd" ];then
-  # Create the Terraform service account
-  ./_helpers/setup_service_account.sh
-else
   # Prepare CloudBuild service account
   ./_helpers/setup_cloud_build_service_account.sh
+else
+  # Create the Terraform service account
+  ./_helpers/setup_service_account.sh
 fi
 
 # run terraform
