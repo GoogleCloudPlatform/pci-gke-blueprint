@@ -42,5 +42,15 @@ steps:
   args: 
   - '-c'
   - |
-      source workstation.env.example
+      cp workstation.env.example workstation.env
+      sed -i "s/YOUR_ORG_ID/${_TF_VAR_ORG_ID}/g" workstation.env
+      sed -i "s/YOUR_GSUITE_ID/${_TF_VAR_GSUITE_ID}/g" workstation.env
+      sed -i "s/YOUR_BILLING_ACCOUNT_ID/${_TF_VAR_BILLING_ACCOUNT}/g" workstation.env
+      sed -i "s/YOUR_PROJECT_FOLDER/${_TF_VAR_FOLDER_ID}/g" workstation.env
+      sed -i "s/demo-pci/${_TF_VAR_PROJECT_PREFIX}/g" workstation.env
+      sed -i "/export TF_ADMIN_PROJECT/c\export TF_ADMIN_PROJECT=${_TF_ADMIN_PROJECT}" workstation.env
+      sed -i "/TF_VAR_frontend_zone_dns_name=/c\export TF_VAR_frontend_zone_dns_name=\"${_TF_VAR_FRONTEND_ZONE_DNS_NAME}\"" workstation.env
+      sed -i "/GOOGLE_GROUPS_DOMAIN=/c\GOOGLE_GROUPS_DOMAIN=\"${_GOOGLE_GROUPS_DOMAIN}\"" workstation.env
+      source workstation.env
+      cat workstation.env
       ./_helpers/build-infra.sh
