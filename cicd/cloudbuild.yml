@@ -56,4 +56,5 @@ steps:
       sed -i "/GOOGLE_GROUPS_DOMAIN=/c\GOOGLE_GROUPS_DOMAIN=\"${_GOOGLE_GROUPS_DOMAIN}\"" workstation.env
       cat workstation.env
       source workstation.env
+      gcloud auth list
       ./_helpers/build-infra.sh
