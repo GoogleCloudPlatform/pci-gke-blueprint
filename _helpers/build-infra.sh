@@ -29,11 +29,10 @@ if [ "$run_type" = "cicd" ];then
   # Prepare CloudBuild service account
   cloud_build_service_account=`gcloud config get-value account`
   ./_helpers/setup_cloud_build_service_account.sh $cloud_build_service_account
+else
+  # Create the Terraform service account
+  ./_helpers/setup_service_account.sh
 fi
-
-# Create the Terraform service account
-./_helpers/setup_service_account.sh
-
 
 # run terraform
 sed "s/<SET TO THE VALUE OF TF_ADMIN_BUCKET>/${TF_ADMIN_BUCKET}/" terraform/infrastructure/backend.tf.example > terraform/infrastructure/backend.tf
