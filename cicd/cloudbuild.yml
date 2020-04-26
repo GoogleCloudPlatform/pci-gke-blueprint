@@ -73,7 +73,7 @@ steps:
       --reporter cli json:/workspace/pci_report.json html:/workspace/pci_report.html | tee out.json
 
 - id: 'Store json Report'
-  waitFor: ['Run PCI Profile']
+  waitFor: ['Run PCI Profile on in-scope project']
   name: gcr.io/cloud-builders/gsutil
   args:
     - cp
@@ -81,7 +81,7 @@ steps:
     - gs://${_REPORTS_BUCKET}/pci_report-${BUILD_ID}.json
 
 - id: 'Store Report'
-  waitFor: ['Run PCI Profile']
+  waitFor: ['Run PCI Profile on in-scope project']
   name: gcr.io/cloud-builders/gsutil
   args:
     - cp
