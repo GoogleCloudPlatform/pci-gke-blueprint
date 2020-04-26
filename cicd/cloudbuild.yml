@@ -56,5 +56,14 @@ steps:
       sed -i "/GOOGLE_GROUPS_DOMAIN=/c\GOOGLE_GROUPS_DOMAIN=\"${_GOOGLE_GROUPS_DOMAIN}\"" workstation.env
       cat workstation.env
       source workstation.env
+
+      echo "This might fail..."
+      gcloud projects create "${TF_ADMIN_PROJECT}" \
+        --folder "${TF_VAR_folder_id}"
+
+      echo "Trying again..."
+      gcloud projects create "${TF_ADMIN_PROJECT}" \
+      --folder "${TF_VAR_folder_id}" --impersonate-service-account
+
       gcloud auth list
       ./_helpers/build-infra.sh
