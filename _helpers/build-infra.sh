@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+run_type=$1
+
 # Set up the admin resources run
 echo 'Setting up the Terraform Admin Project'
 
@@ -23,8 +25,13 @@ source ./workstation.env
 # Create the Admin project
 ./_helpers/admin_project_setup.sh
 
-# Create the Terraform service account
-./_helpers/setup_service_account.sh
+if [ "$run_type" = "cicd" ];then
+  # Create the Terraform service account
+  ./_helpers/setup_service_account.sh
+else
+  # Prepare CloudBuild service account
+  ./_helpers/setup_cloud_build_service_account.sh
+fi
 
 # run terraform
 sed "s/<SET TO THE VALUE OF TF_ADMIN_BUCKET>/${TF_ADMIN_BUCKET}/" terraform/infrastructure/backend.tf.example > terraform/infrastructure/backend.tf
