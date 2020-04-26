@@ -27,7 +27,8 @@ source ./workstation.env
 
 if [ "$run_type" = "cicd" ];then
   # Prepare CloudBuild service account
-  ./_helpers/setup_cloud_build_service_account.sh
+  cloud_build_service_account=`gcloud config get-value account`
+  ./_helpers/setup_cloud_build_service_account.sh $cloud_build_service_account
 else
   # Create the Terraform service account
   ./_helpers/setup_service_account.sh
