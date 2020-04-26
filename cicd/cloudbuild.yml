@@ -54,6 +54,7 @@ steps:
       sed -i "/GOOGLE_APPLICATION_CREDENTIALS=/c\export GOOGLE_APPLICATION_CREDENTIALS=${_GOOGLE_APPLICATION_CREDENTIALS}" workstation.env
       sed -i "/TF_VAR_frontend_zone_dns_name=/c\export TF_VAR_frontend_zone_dns_name=\"${_TF_VAR_FRONTEND_ZONE_DNS_NAME}\"" workstation.env
       sed -i "/GOOGLE_GROUPS_DOMAIN=/c\GOOGLE_GROUPS_DOMAIN=\"${_GOOGLE_GROUPS_DOMAIN}\"" workstation.env
+      sed -i '/GOOGLE_APPLICATION_CREDENTIALS/d' workstation.env
       cat workstation.env
       source workstation.env
       gcloud auth list
