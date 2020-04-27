@@ -56,7 +56,12 @@ gcloud projects add-iam-policy-binding "${TF_ADMIN_PROJECT}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role roles/storage.admin
 
-# resourcemanager.organizationAdmin
+# Add accesscontextmanager.policyAdmin
+gcloud organizations add-iam-policy-binding "${TF_VAR_org_id}" \
+  --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
+  --role="roles/accesscontextmanager.policyAdmin"
+
+# Add resourcemanager.organizationAdmin
 gcloud organizations add-iam-policy-binding "${TF_VAR_org_id}" \
   --member "serviceAccount:terraform@${TF_ADMIN_PROJECT}.iam.gserviceaccount.com" \
   --role="roles/resourcemanager.organizationAdmin"
