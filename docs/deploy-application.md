@@ -10,9 +10,9 @@ This diagram illustrates the different projects that have been created and which
 
 ## Prepare Application Deployment
 
-The application to be deployed here is named microservices-demo, which implements a mock ecommerce application called the [Hipster Store](https://github.com/GoogleCloudPlatform/microservices-demo)
+The application to be deployed here is named microservices-demo, which implements a mock ecommerce application called the [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo)
 
-In this section, we'll deploy a custom version of this Hipster Store that
+In this section, we'll deploy a custom version of this Online Boutique that
 separates any microservices that interact with Cardholder Data (in-scope) from those that
 don't (out-of-scope).
 
@@ -121,7 +121,7 @@ do
 done
 ```
 
-# Hipster Shop Installation
+# Online Boutique Installation
 
 ## Retrieve a needed environment variable
 
@@ -240,7 +240,7 @@ Once the certificate has been successfuly provisioned, the application should be
 
 ```sh
 curl -s -o /dev/null -I -w "%{http_code}" https://$DOMAIN_NAME # output should be 200
-curl -s http://$DOMAIN_NAME | grep -q "One-stop for Hipster Fashion" ; echo $? # output should be 0
+curl -s http://$DOMAIN_NAME | grep -q "Online Boutique" ; echo $? # output should be 0
 ```
 
 # Istio Implementation
