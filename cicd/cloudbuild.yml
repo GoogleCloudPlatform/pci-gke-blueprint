@@ -75,15 +75,15 @@ steps:
       gce_zones:
         - 'us-central1'
         - 'us-central1-a'
-      cis_version: "asdf"
-      cis_url: "asdf"
+      cis_version: ""
+      cis_url: ""
       fw_change_control_id_regex: 'CID:'
       fw_override_control_id_regex: 'CID:'
       logging_viewer_list: []
       logging_admin_list: []
       gcs_logging_buckets: []
-      cai_inventory_bucket_name: 
-      cai_inventory_file_path: 
+      cai_inventory_bucket_name: ""
+      cai_inventory_file_path: ""
       cai_inventory_age_seconds: 60
       gcs_pii_buckets: []
       kms_regions_list:
