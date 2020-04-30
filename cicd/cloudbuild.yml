@@ -60,6 +60,48 @@ steps:
       source workstation.env
       ./_helpers/build-infra.sh cicd
 
+- id: 'Write input file'
+  waitFor: ['Build Infra']
+  name: gcr.io/cloud-foundation-cicd/cft/developer-tools:0
+  entrypoint: '/bin/sh'
+  args: 
+    - '-c'
+    - |
+      cat <<EOF > /workspace/inputs.yml
+      gcp_project_id: "${_TF_VAR_PROJECT_PREFIX}-in-scope"
+      gcp_gke_locations:
+        - 'us-central1'
+        - 'us-central1-a'
+      gce_zones:
+        - 'us-central1'
+        - 'us-central1-a'
+      cis_version: "asdf"
+      cis_url: "asdf"
+      fw_change_control_id_regex: 'CID:'
+      fw_override_control_id_regex: 'CID:'
+      logging_viewer_list: []
+      logging_admin_list: []
+      gcs_logging_buckets: []
+      cai_inventory_bucket_name: 
+      cai_inventory_file_path: 
+      cai_inventory_age_seconds: 60
+      gcs_pii_buckets: []
+      kms_regions_list:
+        - "us-central1"
+      kms_admins_list: []
+      kms_encrypters_list: []
+      kms_decrypters_list: []
+      kms_encrypterdecrypters_list: []
+      kms_rotation_period_seconds: 7776000
+      environment_label: 'env'
+      memorystore_admins_list: []
+      cloudsql_admins_list: []
+      cloudsql_clients_list: []
+      bq_admins_list: []
+      spanner_admins_list: []
+      EOF
+      cat /workspace/inputs.yml
+
 - id: 'Run PCI Profile on in-scope project'
   waitFor: ['Build Infra']
   name: gcr.io/${_GCR_PROJECT_ID}/inspec-gcp-pci-profile:v3.2.1-2
@@ -68,7 +110,7 @@ steps:
     - '-c'
     - |
       inspec exec /share/. -t gcp:// \
-      --input-file /share/attributes.yml \
+      --input-file /workspace/inputs.yml \
       --reporter cli json:/workspace/pci_report.json html:/workspace/pci_report.html | tee out.json
 
 - id: 'Store json Report'
