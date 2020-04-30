@@ -12,7 +12,7 @@ This diagram illustrates the different projects that have been created and which
 
 The application to be deployed here is named microservices-demo, which implements a mock ecommerce application called the [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo)
 
-In this section, we'll deploy a custom version of this Online Boutique that
+In this section, we'll deploy a custom version of the microservices-demo that
 separates any microservices that interact with Cardholder Data (in-scope) from those that
 don't (out-of-scope).
 
@@ -121,7 +121,7 @@ do
 done
 ```
 
-# Online Boutique Installation
+# microservices-demo Installation
 
 ## Retrieve a needed environment variable
 
