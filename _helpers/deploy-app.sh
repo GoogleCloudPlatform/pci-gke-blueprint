@@ -101,7 +101,7 @@ do
   kubectl --context $cluster -n istio-system get service istio-ingressgateway # don't proceed until EXTERNAL-IP is set
 done
 
-# Hipster Shop Installation
+# microservices-demo (the Online Boutique) Installation
 
 # Retrieve a needed environment variable
 
@@ -144,5 +144,5 @@ kubectl --context in-scope describe ingresses
 # After ~3 minutes, The application should be accessible at $DOMAIN_NAME
 
 curl -s -o /dev/null -I -w "%{http_code}" https://$DOMAIN_NAME # output should be 200
-curl -s https://$DOMAIN_NAME | grep -q "One-stop for Hipster Fashion" ; echo $? # output should be 0
+curl -s https://$DOMAIN_NAME | grep -q "Online Boutique" ; echo $? # output should be 0
 curl -Is http://$DOMAIN_NAME | head -1 # output should be "HTTP/1.1 301 Moved Permanently"

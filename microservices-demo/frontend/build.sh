@@ -2,7 +2,7 @@
 
 # Builds and pushes a customized frontend image
 
-MICROSERVICES_DEMO_RELEASE_TAG="v0.1.4"
+MICROSERVICES_DEMO_RELEASE_TAG="v0.2.0"
 MICROSERVICES_DEMO_REPOSITORY="git@github.com:GoogleCloudPlatform/microservices-demo.git"
 TAG="${MICROSERVICES_DEMO_RELEASE_TAG}-$(date +%Y-%m-%d-%H%M)"
 APP_NAME="microservices-demo/frontend"
