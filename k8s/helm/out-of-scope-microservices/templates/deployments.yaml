@@ -28,7 +28,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/adservice:v0.1.4
+        image: gcr.io/google-samples/microservices-demo/adservice:{{ .Values.microservices_demo_version }}
         ports:
         - containerPort: 9555
         env:
@@ -70,7 +70,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/cartservice:v0.1.4
+        image: gcr.io/google-samples/microservices-demo/cartservice:{{ .Values.microservices_demo_version }}
         ports:
         - containerPort: 7070
         env:
@@ -113,7 +113,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/currencyservice:v0.1.4
+        image: gcr.io/google-samples/microservices-demo/currencyservice:{{ .Values.microservices_demo_version }}
         ports:
         - name: grpc
           containerPort: 7000
@@ -150,7 +150,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/emailservice:v0.1.4
+        image: gcr.io/google-samples/microservices-demo/emailservice:{{ .Values.microservices_demo_version }}
         ports:
         - containerPort: 8080
         readinessProbe:
@@ -185,7 +185,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/productcatalogservice:v0.1.4
+        image: gcr.io/google-samples/microservices-demo/productcatalogservice:{{ .Values.microservices_demo_version }}
         ports:
         - containerPort: 3550
         readinessProbe:
@@ -222,7 +222,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.1.4
+        image: gcr.io/google-samples/microservices-demo/recommendationservice:{{ .Values.microservices_demo_version }}
         ports:
         - containerPort: 8080
         readinessProbe:
@@ -259,7 +259,7 @@ spec:
     spec:
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/shippingservice:v0.1.4
+        image: gcr.io/google-samples/microservices-demo/shippingservice:{{ .Values.microservices_demo_version }}
         ports:
         - containerPort: 50051
         readinessProbe:

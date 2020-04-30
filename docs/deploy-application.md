@@ -1,4 +1,4 @@
-# Deploying the Microservices-Demo Application
+# Deploying the microservices-demo (Online Boutique) Application
 
 This is a walkthrough of the steps included in `./_helpers/deploy-app.sh`
 
@@ -10,9 +10,9 @@ This diagram illustrates the different projects that have been created and which
 
 ## Prepare Application Deployment
 
-The application to be deployed here is named microservices-demo, which implements a mock ecommerce application called the [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo)
+The application to be deployed here is the [Online Boutique](https://github.com/GoogleCloudPlatform/microservices-demo), a mock e-commerce application.
 
-In this section, we'll deploy a custom version of the microservices-demo that
+In this section, we'll deploy a custom version of the Online Boutique that
 separates any microservices that interact with Cardholder Data (in-scope) from those that
 don't (out-of-scope).
 

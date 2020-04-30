@@ -13,7 +13,8 @@
 # limitations under the License.
 
 frontend_security_policy: frontend-application-security-policy
-frontend_image: gcr.io/pci-gke-blueprint/microservices-demo/frontend:v0.1.4-2020-04-24-1414
+frontend_image: gcr.io/pci-gke-blueprint/microservices-demo/frontend:v0.2.0-2020-04-30-1728
+microservices_demo_version: v0.2.0
 
 # Required to be supplied:
 # out_of_scope_ingress_gateway_ip_address: 172.16.4.9

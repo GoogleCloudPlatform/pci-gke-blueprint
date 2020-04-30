@@ -15,3 +15,5 @@
 # Default values for out-of-scope-microservices.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+
+microservices_demo_version: v0.2.0
