@@ -67,20 +67,27 @@ steps:
   args: 
     - '-c'
     - |
+      cloud_build_service_account=`gcloud config get-value account`
+
       cat <<EOF > /workspace/inputs.yml
       gcp_project_id: "${_TF_VAR_PROJECT_PREFIX}-in-scope"
       gcp_gke_locations:
         - 'us-central1'
-        - 'us-central1-a'
       gce_zones:
         - 'us-central1'
         - 'us-central1-a'
+        - 'us-central1-b'
+        - 'us-central1-c'
+        - 'us-central1-d'
+        - 'us-central1-e'
+        - 'us-central1-f'
       cis_version: ""
       cis_url: ""
       fw_change_control_id_regex: 'CID:'
       fw_override_control_id_regex: 'CID:'
       logging_viewer_list: []
       logging_admin_list: []
+      project_owners_list: ["serviceAccount:$cloud_build_service_account"]
       gcs_logging_buckets: []
       cai_inventory_bucket_name: ""
       cai_inventory_file_path: ""
