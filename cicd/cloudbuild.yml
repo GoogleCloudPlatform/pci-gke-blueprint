@@ -104,7 +104,7 @@ steps:
 
 - id: 'Run PCI Profile on in-scope project'
   waitFor: ['Write input file']
-  name: gcr.io/${_GCR_PROJECT_ID}/inspec-gcp-pci-profile:v3.2.1-2
+  name: gcr.io/${_GCR_PROJECT_ID}/inspec-gcp-pci-profile:v3.2.1-3
   entrypoint: '/bin/sh'
   args: 
     - '-c'
@@ -121,7 +121,7 @@ steps:
     - /workspace/pci_report.json
     - gs://${_REPORTS_BUCKET}/pci_report-${BUILD_ID}.json
 
-- id: 'Store Report'
+- id: 'Store HTML Report'
   waitFor: ['Run PCI Profile on in-scope project']
   name: gcr.io/cloud-builders/gsutil
   args:
