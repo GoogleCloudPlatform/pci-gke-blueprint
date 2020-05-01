@@ -106,6 +106,7 @@ steps:
       cloudsql_clients_list: []
       bq_admins_list: []
       spanner_admins_list: []
+      environment_label: "goog-gke-node"
       allow_all_tcp_ports: []
       allow_all_udp_ports: []
       EOF
