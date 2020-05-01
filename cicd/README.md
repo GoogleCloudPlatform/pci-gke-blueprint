@@ -17,11 +17,6 @@ blueprint:
 
 `git clone https://github.com/GoogleCloudPlatform/inspec-gcp-pci-profile.git`
 
-Create the file `attributes.yml` inside the root directory of the profile and specify the
-parameters that are required in the inspec.yml file. Refer to this [Readme](https://github.com/GoogleCloudPlatform/inspec-gcp-pci-profile/blob/master/README.md)
-for an example setup. The parameters are specific to the setup of your project and to the naming
-of GCS buckets, service accounts, IAM users, etc..
-
 A container needs to be created which runs the InSpec profile in the pipeline. 
 Build a container by running:
 
