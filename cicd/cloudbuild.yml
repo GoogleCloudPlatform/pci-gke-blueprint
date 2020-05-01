@@ -103,7 +103,7 @@ steps:
       cat /workspace/inputs.yml
 
 - id: 'Run PCI Profile on in-scope project'
-  waitFor: ['Write input file]
+  waitFor: ['Write input file']
   name: gcr.io/${_GCR_PROJECT_ID}/inspec-gcp-pci-profile:v3.2.1-2
   entrypoint: '/bin/sh'
   args: 
