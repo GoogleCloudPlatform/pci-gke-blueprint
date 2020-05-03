@@ -68,7 +68,7 @@ terraform apply terraform.out
 if [ $? -ne 0 ];then
   echo "Terraform apply failed. Aborting..."
   if [ "$run_type" = "cicd" ];then
-    terraform destroy -auto-approve
+    #terraform destroy -auto-approve
   fi
   exit 1
 fi
