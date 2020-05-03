@@ -24,6 +24,7 @@ substitutions:
   _TF_VAR_PROJECT_PREFIX: ''
   _GCR_PROJECT_ID: ''
   _REPORTS_BUCKET: ''
+  _DESTROY_INFRA_AFTER_CREATE: ''
 
   
 timeout: 3000s
@@ -138,3 +139,16 @@ steps:
     - cp
     - /workspace/pci_report.html
     - gs://${_REPORTS_BUCKET}/pci_report-${BUILD_ID}.html
+
+- id: 'Destroy Infra'
+  waitFor: ['Store HTML Report']
+  name: gcr.io/cloud-foundation-cicd/cft/developer-tools:0
+  entrypoint: '/bin/sh'
+  args: 
+    - '-c'
+    - |
+      if [ "${_DESTROY_INFRA_AFTER_CREATE}" = "true" ];then
+        cd terraform/infrastructure
+        terraform destroy -auto-approve
+      fi
+      
