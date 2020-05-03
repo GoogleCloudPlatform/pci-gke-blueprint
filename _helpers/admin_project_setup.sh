@@ -32,7 +32,7 @@ sleep 10
 
 echo "=> Creating project inside the folder ${TF_VAR_folder_id}"
 project_exists=`gcloud projects list --filter "${TF_ADMIN_PROJECT}" | grep "${TF_ADMIN_PROJECT}" | wc -l | tr -d ' '`
-if [ "$project_exists" = "1" ];then 
+if [ "$project_exists" = "0" ];then 
   gcloud projects create "${TF_ADMIN_PROJECT}" --folder "${TF_VAR_folder_id}"
 else
   echo "Project already exists. Skipping"
