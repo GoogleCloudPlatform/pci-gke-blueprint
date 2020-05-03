@@ -67,6 +67,9 @@ pushd terraform/infrastructure
 terraform init
 terraform plan -out terraform.out
 terraform apply terraform.out
+if [ $? -ne 0 ];then
+  echo "Terraform apply failed. Aborting..."
+  exit 1
 popd
 
 # DNS
