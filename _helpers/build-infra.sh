@@ -70,6 +70,7 @@ terraform apply terraform.out
 if [ $? -ne 0 ];then
   echo "Terraform apply failed. Aborting..."
   exit 1
+fi
 popd
 
 # DNS
