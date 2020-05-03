@@ -58,7 +58,7 @@ steps:
       sed -i '/GOOGLE_APPLICATION_CREDENTIALS/d' workstation.env
       cat workstation.env
       source workstation.env
-      ./_helpers/build-infra.sh cicd
+      ./_helpers/build-infra.sh -a -c
 
 - id: 'Write input file'
   waitFor: ['Build Infra']
