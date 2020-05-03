@@ -39,8 +39,6 @@ do
 	esac
 done
 
-run_type=$1
-
 # Source the environment setup file you created previously
 source ./workstation.env
 
