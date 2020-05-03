@@ -31,8 +31,13 @@ echo "Continuing in 10 seconds. Ctrl+C to cancel"
 sleep 10
 
 echo "=> Creating project inside the folder ${TF_VAR_folder_id}"
-gcloud projects create "${TF_ADMIN_PROJECT}" \
-  --folder "${TF_VAR_folder_id}"
+project_exists=`gcloud projects list --filter ${TF_ADMIN_PROJECT} | grep ${TF_ADMIN_PROJECT}`
+if [ "$project_exists" = "0" ];then 
+  gcloud projects create "${TF_ADMIN_PROJECT}" \
+    --folder "${TF_VAR_folder_id}"
+else
+  echo "Project already exists. Skipping"
+fi
 
 echo "=> Linking ${TF_VAR_billing_account} Billing Account to your project"
 gcloud beta billing projects link "${TF_ADMIN_PROJECT}" \

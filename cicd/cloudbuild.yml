@@ -59,7 +59,7 @@ steps:
       sed -i '/GOOGLE_APPLICATION_CREDENTIALS/d' workstation.env
       cat workstation.env
       source workstation.env
-      ./_helpers/build-infra.sh -a -c
+      ./_helpers/build-infra.sh -c
 
 - id: 'Write input file'
   waitFor: ['Build Infra']
@@ -148,6 +148,8 @@ steps:
     - '-c'
     - |
       if [ "${_DESTROY_INFRA_AFTER_CREATE}" = "true" ];then
+        cat workstation.env
+        source workstation.env
         cd terraform/infrastructure
         terraform destroy -auto-approve
       fi
