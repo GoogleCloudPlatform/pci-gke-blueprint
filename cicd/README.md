@@ -53,7 +53,11 @@ Create the following Substitution variables and enter values according to the wo
 * _TF_VAR_GSUITE_ID
 * _TF_VAR_ORG_ID
 * _TF_VAR_PROJECT_PREFIX
+* _DESTROY_INFRA_AFTER_CREATE
 
 The variable _REPORTS_BUCKET is the GCS bucket which will contain the InSpec report files in json
 and html format. Make sure that the Cloud Build service account has the Cloud Storage Admin role
 on the bucket that you specify.
+
+The variable _DESTROY_INFRA_AFTER_CREATE is boolean (`false` or `true`) and determines whether the
+infrastructure should be destroyed as final step of the pipeline execution.
