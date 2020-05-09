@@ -30,6 +30,7 @@ Push the Docker container to the Google Container Registry:
 * The Cloud Build service account requires the organization admin and folder admin on
 organization level.
 * The Cloud Build service account needs to have the Cloud Billing User role on the Billing account.
+* The Cloud Build service account needs to have the Project Creator role on folder level.
 * The Cloud Build service account needs to be a domain owner of the front-end domain that you
 specify in the workstation.env file.
 * Enable the Context Manager and Cloud Billing API in the project in which you create the Cloud Build
