@@ -26,9 +26,15 @@ substitutions:
   _REPORTS_BUCKET: ''
   _DESTROY_INFRA_AFTER_CREATE: ''
 
-  
+
 timeout: 3000s
 steps:
+- name: 'gcr.io/cloud-builders/docker:18.09.0'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      docker pull gcr.io/cloud-foundation-cicd/cft/developer-tools:0 || exit 0
 - id: 'Build Infra'
   name: 'gcr.io/cloud-foundation-cicd/cft/developer-tools:0'
   waitFor: ['-']
@@ -43,7 +49,7 @@ steps:
   - TF_VAR_gsuite_id=${_TF_VAR_GSUITE_ID}
   - TF_VAR_org_id=${_TF_VAR_ORG_ID}
   - TF_VAR_project_prefix=${_TF_VAR_PROJECT_PREFIX}
-  args: 
+  args:
   - '-c'
   - |
       cloud_build_service_account=`gcloud config get-value account`
@@ -67,7 +73,7 @@ steps:
   waitFor: ['Build Infra']
   name: gcr.io/cloud-foundation-cicd/cft/developer-tools:0
   entrypoint: '/bin/sh'
-  args: 
+  args:
     - '-c'
     - |
       cloud_build_service_account=`gcloud config get-value account`
@@ -119,7 +125,7 @@ steps:
   waitFor: ['Write input file']
   name: gcr.io/${_GCR_PROJECT_ID}/inspec-gcp-pci-profile:v3.2.1-3
   entrypoint: '/bin/sh'
-  args: 
+  args:
     - '-c'
     - |
       inspec exec /share/. -t gcp:// \
@@ -146,7 +152,7 @@ steps:
   waitFor: ['Store HTML Report']
   name: gcr.io/cloud-foundation-cicd/cft/developer-tools:0
   entrypoint: '/bin/sh'
-  args: 
+  args:
     - '-c'
     - |
       if [ "${_DESTROY_INFRA_AFTER_CREATE}" = "true" ];then
@@ -155,4 +161,3 @@ steps:
         cd terraform/infrastructure
         terraform destroy -auto-approve
       fi
-      
