@@ -29,12 +29,6 @@ substitutions:
 
 timeout: 3000s
 steps:
-- name: 'gcr.io/cloud-builders/docker:18.09.0'
-  entrypoint: 'bash'
-  args:
-    - '-c'
-    - |
-      docker pull gcr.io/cloud-foundation-cicd/cft/developer-tools:0 || exit 0
 - id: 'Build Infra'
   name: 'gcr.io/cloud-foundation-cicd/cft/developer-tools:0'
   waitFor: ['-']
