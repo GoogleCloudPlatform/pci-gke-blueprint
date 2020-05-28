@@ -14,17 +14,50 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Set up the admin resources run
-echo 'Setting up the Terraform Admin Project'
+usage() {
+	echo "Usage: build-infra [-ach] "
+	echo
+	echo "Builds infrastructure of pci-gke-blueprint"
+	echo
+	echo "  -c (optional)     Running script in continuous integration and skipping service account creation"
+	echo "  -a (optional)     Admin project setup will be skipped"
+	echo "  -h (optional)     Print this help menu"
+}
+
+unset run_type skip_admin_project
+skip_admin_project=false
+
+while getopts 'ach' c
+do
+	case $c in
+		c) run_type="cicd";;
+		a) skip_admin_project=true;;
+		h|?)
+		  usage
+		  exit 2
+		  ;;
+	esac
+done
 
 # Source the environment setup file you created previously
 source ./workstation.env
 
-# Create the Admin project
-./_helpers/admin_project_setup.sh
+if [ "$skip_admin_project" = "false" ];then
+  # Set up the admin resources run
+  echo 'Setting up the Terraform Admin Project'
 
-# Create the Terraform service account
-./_helpers/setup_service_account.sh
+  # Create the Admin project
+  ./_helpers/admin_project_setup.sh
+fi
+
+if [ "$run_type" = "cicd" ];then
+  # Prepare CloudBuild service account
+  cloud_build_service_account=`gcloud config get-value account`
+  ./_helpers/setup_cloud_build_service_account.sh $cloud_build_service_account
+else
+  # Create the Terraform service account
+  ./_helpers/setup_service_account.sh
+fi
 
 # run terraform
 sed "s/<SET TO THE VALUE OF TF_ADMIN_BUCKET>/${TF_ADMIN_BUCKET}/" terraform/infrastructure/backend.tf.example > terraform/infrastructure/backend.tf
@@ -32,6 +65,10 @@ pushd terraform/infrastructure
 terraform init
 terraform plan -out terraform.out
 terraform apply terraform.out
+if [ $? -ne 0 ];then
+  echo "Terraform apply failed. Aborting..."
+  exit 1
+fi
 popd
 
 # DNS

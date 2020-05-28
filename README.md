@@ -31,6 +31,7 @@ Here are the projects/services we make use of in this Blueprint:
 * [Diagrams](docs/diagrams.md)
 * [Kubernetes RBAC via Google Groups membership demonstration](docs/Google-Groups-and-RBAC.md)
 * [Development](/docs/development.md)
+* [Continuous Integration with Cloud Build](/docs/cicd.md)
 * [Known Issues and Limitations](#known-issues-and-limitations)
 * [Helpful Links](#helpful-links)
 
