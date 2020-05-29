@@ -25,6 +25,7 @@ substitutions:
   _GCR_PROJECT_ID: ''
   _REPORTS_BUCKET: ''
   _DESTROY_INFRA_AFTER_CREATE: ''
+  _INSPEC_PROFILE_DOCKER_TAG: ''
 
   
 timeout: 3000s
@@ -117,7 +118,7 @@ steps:
 
 - id: 'Run PCI Profile on in-scope project'
   waitFor: ['Write input file']
-  name: gcr.io/${_GCR_PROJECT_ID}/inspec-gcp-pci-profile:v3.2.1-3
+  name: gcr.io/${_GCR_PROJECT_ID}/inspec-gcp-pci-profile:${_INSPEC_PROFILE_DOCKER_TAG}
   entrypoint: '/bin/sh'
   args: 
     - '-c'

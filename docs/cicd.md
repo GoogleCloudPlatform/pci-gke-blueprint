@@ -18,6 +18,10 @@ blueprint:
 `git clone https://github.com/GoogleCloudPlatform/inspec-gcp-pci-profile.git`
 
 A container needs to be created which runs the InSpec profile in the pipeline. 
+Choose a tag for the container according to the version in the inspec.yml file
+in the Inspec profile's repository. Note, that you will have to specify this tag
+as substituation parameter in Cloud Build (parameter `_INSPEC_PROFILE_DOCKER_TAG`).
+
 Build a container by running:
 
 `docker build . -t gcr.io/<project_id>/inspec-gcp-pci-profile:<version>`
@@ -57,6 +61,7 @@ Create the following Substitution variables and enter values according to the wo
 * _TF_VAR_ORG_ID
 * _TF_VAR_PROJECT_PREFIX
 * _DESTROY_INFRA_AFTER_CREATE
+* _INSPEC_PROFILE_DOCKER_TAG
 
 The variable _REPORTS_BUCKET is the GCS bucket which will contain the InSpec report files in json
 and html format. Make sure that the Cloud Build service account has the Cloud Storage Admin role
