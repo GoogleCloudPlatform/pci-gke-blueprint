@@ -3,6 +3,10 @@
 We'd love to accept your patches and contributions to this project. There are
 just a few small guidelines you need to follow.
 
+## Development
+
+See [development](docs/development.md) for details regarding development to this project.
+
 ## Contributor License Agreement
 
 Contributions to this project must be accompanied by a Contributor License

@@ -2,7 +2,18 @@
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for information on contributing to this project.
+See [contributing](../CONTRIBUTING.md) for information on contributing to this project.
+
+
+## Prerequisites
+
+These are required for development:
+
+* Make
+* Go
+* [Terraform](https://www.terraform.io/downloads.html)
+* Python
+* [Shellcheck](https://github.com/koalaman/shellcheck#installing)
 
 
 ### License Header
